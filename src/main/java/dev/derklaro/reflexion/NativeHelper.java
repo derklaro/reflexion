@@ -1,4 +1,4 @@
-package com.github.derklaro.reflexion;
+package dev.derklaro.reflexion;
 
 import java.io.IOException;
 import java.nio.file.Files;

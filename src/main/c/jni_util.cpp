@@ -1,6 +1,26 @@
 #include <jni.h>
 #include "jni_util.h"
 
+JNIEXPORT void JNICALL RaiseIllegalArgumentException(JNIEnv *env, const char *msg) {
+  jclass clazz = env->FindClass("java/lang/IllegalArgumentException");
+  env->ThrowNew(clazz, msg);
+}
+
+JNIEXPORT jclass JNICALL GetTargetClass(JNIEnv *env, jstring name) {
+  const char *owner = env->GetStringUTFChars(name, nullptr);
+
+  jclass clazz = env->FindClass(owner);
+  env->ReleaseStringUTFChars(name, owner);
+
+  // ensure we actually got the class
+  if (clazz == nullptr) {
+    RaiseIllegalArgumentException(env, "unknown target class given");
+    return nullptr;
+  }
+
+  return clazz;
+}
+
 JNIEXPORT jfieldID JNICALL GetFieldId(JNIEnv *env, jclass owner, jstring name, jstring signature, bool staticField) {
   const char *field_name = env->GetStringUTFChars(name, nullptr);
   const char *field_signature = env->GetStringUTFChars(signature, nullptr);
@@ -24,22 +44,23 @@ JNIEXPORT jfieldID JNICALL GetFieldId(JNIEnv *env, jclass owner, jstring name, j
   return fieldId;
 }
 
-JNIEXPORT jclass JNICALL GetTargetClass(JNIEnv *env, jstring name) {
-  const char *owner = env->GetStringUTFChars(name, 0);
+JNIEXPORT jfieldID JNICALL GetFieldId(JNIEnv *env, jclass owner, jstring name, const char *signature, bool staticField) {
+  const char *field_name = env->GetStringUTFChars(name, nullptr);
 
-  jclass clazz = env->FindClass(owner);
-  env->ReleaseStringUTFChars(name, owner);
+  jfieldID fieldId;
+  if (staticField) {
+    fieldId = env->GetStaticFieldID(owner, field_name, signature);
+  } else {
+    fieldId = env->GetFieldID(owner, field_name, signature);
+  }
 
-  // ensure we actually got the class
-  if (clazz == nullptr) {
-    RaiseIllegalArgumentException(env, "unknown target class given");
+  env->ReleaseStringUTFChars(name, field_name);
+
+  // ensure we got the field
+  if (fieldId == nullptr) {
+    RaiseIllegalArgumentException(env, "illegal field given");
     return nullptr;
   }
 
-  return clazz;
-}
-
-JNIEXPORT void JNICALL RaiseIllegalArgumentException(JNIEnv *env, const char *msg) {
-  jclass clazz = env->FindClass("java/lang/IllegalArgumentException");
-  env->ThrowNew(clazz, msg);
+  return fieldId;
 }

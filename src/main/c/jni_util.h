@@ -11,3 +11,5 @@ JNIEXPORT void JNICALL RaiseIllegalArgumentException(JNIEnv *, const char *);
 JNIEXPORT jclass JNICALL GetTargetClass(JNIEnv *, jstring);
 
 JNIEXPORT jfieldID JNICALL GetFieldId(JNIEnv *, jclass, jstring, jstring, bool);
+
+JNIEXPORT jfieldID JNICALL GetFieldId(JNIEnv *, jclass, jstring, const char *, bool);

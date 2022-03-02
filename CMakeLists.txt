@@ -11,5 +11,5 @@ find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 
 # sets the source files
-set(SOURCE_FILES src/main/c/jni_nativereflection.cpp src/main/c/jni_util.cpp)
+set(SOURCE_FILES src/main/c/jni_reflexion_field.cpp src/main/c/jni_util.cpp)
 add_library(native.dll SHARED ${SOURCE_FILES})
