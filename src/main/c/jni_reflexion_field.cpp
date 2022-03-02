@@ -47,11 +47,11 @@ JNIEXPORT jbyte JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetBF
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return 0;
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "B", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return 0;
 
   return on == nullptr ? env->GetStaticByteField(clazz, field) : env->GetByteField(on, field);
 }
@@ -65,11 +65,11 @@ JNIEXPORT jchar JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetCF
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return '\u0000';
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "C", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return '\u0000';
 
   return on == nullptr ? env->GetStaticCharField(clazz, field) : env->GetCharField(on, field);
 }
@@ -83,11 +83,11 @@ JNIEXPORT jshort JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetS
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return 0;
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "S", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return 0;
 
   return on == nullptr ? env->GetStaticShortField(clazz, field) : env->GetShortField(on, field);
 }
@@ -101,11 +101,11 @@ JNIEXPORT jint JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetIFi
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return 0;
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "I", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return 0;
 
   return on == nullptr ? env->GetStaticIntField(clazz, field) : env->GetIntField(on, field);
 }
@@ -119,11 +119,11 @@ JNIEXPORT jlong JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetJF
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return 0;
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "J", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return 0;
 
   return on == nullptr ? env->GetStaticLongField(clazz, field) : env->GetLongField(on, field);
 }
@@ -137,11 +137,11 @@ JNIEXPORT jfloat JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetF
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return 0;
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "F", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return 0;
 
   return on == nullptr ? env->GetStaticFloatField(clazz, field) : env->GetFloatField(on, field);
 }
@@ -155,11 +155,11 @@ JNIEXPORT jdouble JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_Get
 ) {
   // get the owner type
   jclass clazz = GetTargetClass(env, target);
-  if (clazz == nullptr) return JNI_FALSE;
+  if (clazz == nullptr) return 0;
 
   // get the actual field
   jfieldID field = GetFieldId(env, clazz, name, "D", on == nullptr);
-  if (field == nullptr) return JNI_FALSE;
+  if (field == nullptr) return 0;
 
   return on == nullptr ? env->GetStaticDoubleField(clazz, field) : env->GetDoubleField(on, field);
 }
