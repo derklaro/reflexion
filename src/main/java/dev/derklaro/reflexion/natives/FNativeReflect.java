@@ -15,7 +15,7 @@ final class FNativeReflect {
 
   public static native int GetIFieldValue(String owner, String name, Object on);
 
-  public static native long GetLFieldValue(String owner, String name, Object on);
+  public static native long GetJFieldValue(String owner, String name, Object on);
 
   public static native float GetFFieldValue(String owner, String name, Object on);
 
@@ -34,7 +34,7 @@ final class FNativeReflect {
 
   public static native void SetIFieldValue(String owner, String name, Object on, int val);
 
-  public static native void SetLFieldValue(String owner, String name, Object on, long val);
+  public static native void SetJFieldValue(String owner, String name, Object on, long val);
 
   public static native void SetFFieldValue(String owner, String name, Object on, float val);
 

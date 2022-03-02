@@ -110,7 +110,7 @@ JNIEXPORT jint JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetIFi
   return on == nullptr ? env->GetStaticIntField(clazz, field) : env->GetIntField(on, field);
 }
 
-JNIEXPORT jlong JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetLFieldValue(
+JNIEXPORT jlong JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetJFieldValue(
   JNIEnv *env,
   jclass,
   jstring target,
@@ -122,7 +122,7 @@ JNIEXPORT jlong JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetLF
   if (clazz == nullptr) return JNI_FALSE;
 
   // get the actual field
-  jfieldID field = GetFieldId(env, clazz, name, "L", on == nullptr);
+  jfieldID field = GetFieldId(env, clazz, name, "J", on == nullptr);
   if (field == nullptr) return JNI_FALSE;
 
   return on == nullptr ? env->GetStaticLongField(clazz, field) : env->GetLongField(on, field);
@@ -297,7 +297,7 @@ JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetIFi
     env->SetIntField(on, field, newValue);
 }
 
-JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetLFieldValue(
+JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetJFieldValue(
   JNIEnv *env,
   jclass,
   jstring target,
@@ -310,7 +310,7 @@ JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetLFi
   if (clazz == nullptr) return;
 
   // get the actual field
-  jfieldID field = GetFieldId(env, clazz, name, "L", on == nullptr);
+  jfieldID field = GetFieldId(env, clazz, name, "J", on == nullptr);
   if (field == nullptr) return;
 
   if (on == nullptr)

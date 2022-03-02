@@ -60,7 +60,7 @@ JNIEXPORT jint JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetIFi
  * Method:    GetLFieldValue
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)J
  */
-JNIEXPORT jlong JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetLFieldValue
+JNIEXPORT jlong JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_GetJFieldValue
   (JNIEnv *, jclass, jstring, jstring, jobject);
 
 /*
@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetIFi
  * Method:    SetLFieldValue
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;J)V
  */
-JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetLFieldValue
+JNIEXPORT void JNICALL Java_dev_derklaro_reflexion_natives_FNativeReflect_SetJFieldValue
   (JNIEnv *, jclass, jstring, jstring, jobject, jlong);
 
 /*
