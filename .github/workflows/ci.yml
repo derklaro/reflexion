@@ -55,4 +55,4 @@ jobs:
         with:
           command: build
           use-cross: ${{ matrix.platform.cross }}
-          args: --release --target ${{ matrix.platform.target }} --manifest-path=native/Cargo.toml --no-default-features
+          args: --release --target=${{ matrix.platform.target }} --manifest-path=native/Cargo.toml
