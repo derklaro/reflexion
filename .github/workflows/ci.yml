@@ -38,10 +38,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install gcc-multilib
-        if: matrix.platform.os == 'ubuntu-latest'
-        run: sudo apt update -y && sudo apt install -y build-essential
-
       - name: Setup rust toolchain
         uses: actions-rs/toolchain@v1
         with:
