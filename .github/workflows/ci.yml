@@ -44,10 +44,11 @@ jobs:
           override: true
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.platform.target }}
 
       - name: Build binary
         uses: actions-rs/cargo@v1
         with:
           command: build
           use-cross: ${{ matrix.platform.cross }}
-          args: --release --target ${{ matrix.platform.target }} --manifest-path=native/Cargo.toml
+          args: --release --target ${{ matrix.platform.target }} --manifest-path=native/Cargo.toml --no-default-features
