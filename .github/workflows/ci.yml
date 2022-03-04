@@ -7,27 +7,23 @@ on:
 
 jobs:
   build-native:
-    name: Binary ${{ matrix.toolchain }} / ${{ matrix.platform.target }}
+    name: Build binary ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
       matrix:
-        toolchain:
-          - stable
-          - nightly
         platform:
-          # x86_64
-          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false, compiler: '' }
-          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false, compiler: '' }
-          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false, compiler: '' }
-          # ARM64
+          # mac target
           - { os: 'macos-latest', target: 'aarch64-apple-darwin', cross: true, compiler: '' }
+          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false, compiler: '' }
+          # windows target
           - { os: 'windows-latest', target: 'aarch64-pc-windows-msvc', cross: true, compiler: '' }
+          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false, compiler: '' }
+          # linux target
+          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false, compiler: '' }
           - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', cross: true, compiler: 'gcc-aarch64-linux-gnu' }
-          # ARMv7
-          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
-          # ARMv6
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
+          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -41,7 +37,7 @@ jobs:
         with:
           override: true
           profile: minimal
-          toolchain: ${{ matrix.toolchain }}
+          toolchain: stable
           target: ${{ matrix.platform.target }}
 
       - name: Build binary
