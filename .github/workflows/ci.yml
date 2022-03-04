@@ -17,35 +17,27 @@ jobs:
           - nightly
         platform:
           # x86_64
-          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false }
-          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false }
-          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false }
+          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false, compiler: '' }
+          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false, compiler: '' }
+          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false, compiler: '' }
           # ARM64
-          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', cross: true }
+          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', cross: true, compiler: 'gcc-aarch64-linux-gnu' }
           # ARMv7
-          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf', cross: true }
+          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
           # ARMv6
-          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true }
+          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: '' }
           # Android
-          - { os: 'ubuntu-latest', target: 'aarch64-linux-android', cross: true }
-          - { os: 'ubuntu-latest', target: 'armv7-linux-androideabi', cross: true }
-          - { os: 'ubuntu-latest', target: 'x86_64-linux-android', cross: true }
-          - { os: 'ubuntu-latest', target: 'i686-linux-android', cross: true }
+          - { os: 'ubuntu-latest', target: 'aarch64-linux-android', cross: true, compiler: '' }
+          - { os: 'ubuntu-latest', target: 'armv7-linux-androideabi', cross: true, compiler: '' }
+          - { os: 'ubuntu-latest', target: 'x86_64-linux-android', cross: true, compiler: '' }
+          - { os: 'ubuntu-latest', target: 'i686-linux-android', cross: true, compiler: '' }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Update apt packages
-        if: matrix.platform.os == 'ubuntu-latest'
-        run: sudo apt update -y
-
-      - name: Install gcc-aarch64-linux-gnu
-        if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
-        run: sudo apt install gcc-aarch64-linux-gnu -y
-
-      - name: Install gcc-arm-linux-gnueabihf
-        if: matrix.platform.target == 'armv7-unknown-linux-gnueabihf'
-        run: sudo apt install gcc-arm-linux-gnueabihf -y
+      - name: Install compiler if needed
+        if: matrix.platform.os == 'ubuntu-latest' && matrix.platform.compiler != ''
+        run: sudo apt update -y && sudo apt install ${{ matrix.platform.compiler }} -y
 
       - name: Setup rust toolchain
         uses: actions-rs/toolchain@v1
