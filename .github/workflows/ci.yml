@@ -47,8 +47,8 @@ jobs:
           use-cross: ${{ matrix.platform.cross }}
           args: --release --target=${{ matrix.platform.target }} --manifest-path=native/Cargo.toml --no-default-features
 
-       - uses: actions/upload-artifact@v3
-         if: matrix.platform.cross == false
-         with:
+      - uses: actions/upload-artifact@v3
+        if: matrix.platform.cross == false
+        with:
           name: ${{ matrix.platform.target }}
           path: native/target/debug
