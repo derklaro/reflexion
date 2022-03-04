@@ -40,7 +40,7 @@ jobs:
 
       - name: Install gcc-multilib
         if: matrix.platform.os == 'ubuntu-latest'
-        run: sudo apt install -y gcc-multilib
+        run: sudo apt update -y && sudo apt install -y gcc-multilib
 
       - name: Setup rust toolchain
         uses: actions-rs/toolchain@v1
