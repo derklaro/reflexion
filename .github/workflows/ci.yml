@@ -25,12 +25,7 @@ jobs:
           # ARMv7
           - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
           # ARMv6
-          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: '' }
-          # Android
-          - { os: 'ubuntu-latest', target: 'aarch64-linux-android', cross: true, compiler: '' }
-          - { os: 'ubuntu-latest', target: 'armv7-linux-androideabi', cross: true, compiler: '' }
-          - { os: 'ubuntu-latest', target: 'x86_64-linux-android', cross: true, compiler: '' }
-          - { os: 'ubuntu-latest', target: 'i686-linux-android', cross: true, compiler: '' }
+          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
