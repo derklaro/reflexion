@@ -51,4 +51,4 @@ jobs:
         if: matrix.platform.cross == false
         with:
           name: ${{ matrix.platform.target }}
-          path: native/target/${{ matrix.platform.target }}/debug/
+          path: native/target/
