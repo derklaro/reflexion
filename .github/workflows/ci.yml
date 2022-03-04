@@ -38,6 +38,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: pack
+        run: sudo apt update -y && sudo apt install gcc-aarch64-linux-gnu -y
+
       - name: Setup rust toolchain
         uses: actions-rs/toolchain@v1
         with:
