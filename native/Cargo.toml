@@ -1,0 +1,13 @@
+[package]
+name = "reflexion"
+version = "1.0.0"
+edition = "2021"
+
+license = "MIT"
+repository = "https://github.com/derklaro/reflexion"
+
+[dependencies]
+jni = "0.19.0"
+
+[lib]
+crate_type = ["cdylib"]

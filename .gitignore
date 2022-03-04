@@ -1,8 +1,10 @@
 .idea/
+.vscode/
 
 # gradle
 .gradle/
 build/
+target/
 
 # eclipse
 *.classpath
@@ -50,9 +52,10 @@ atlassian-ide-plugin.xml
 # delombok
 */src/main/lombok
 
-# ignore native build output
-cmake-build-debug/
+# rust
+Cargo.lock
 
+# native build output
 *.dylib
 *.dll
 *.so

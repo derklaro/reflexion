@@ -1,1 +1,3 @@
-rootProject.name = "reflexion"
+rootProject.name = "reflexion-parent"
+
+include("native", "reflexion")
