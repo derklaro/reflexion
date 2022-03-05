@@ -14,17 +14,16 @@ jobs:
       matrix:
         platform:
           # mac target
-          - { os: 'macos-latest', target: 'aarch64-apple-darwin', cross: true, compiler: '' }
-          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false, compiler: '' }
+          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false, compiler: '', osn: 'mac', arch: 'x86_64', pref: 'lib', ext: 'dylib' }
+          - { os: 'macos-latest', target: 'aarch64-apple-darwin', cross: true, compiler: '', osn: 'mac', arch: 'aarch64', pref: 'lib', ext: 'dylib' }
           # windows target
-          - { os: 'windows-latest', target: 'aarch64-pc-windows-msvc', cross: true, compiler: '' }
-          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false, compiler: '' }
+          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false, compiler: '', osn: 'windows', arch: 'x86_64', pref: '', ext: 'dll' }
+          - { os: 'windows-latest', target: 'aarch64-pc-windows-msvc', cross: true, compiler: '', osn: 'windows', arch: 'aarch64', pref: '', ext: 'dll' }
           # linux target
-          - { os: 'ubuntu-latest', target: 'x86_64-unknown-netbsd', cross: true, compiler: '' }
-          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false, compiler: '' }
-          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', cross: true, compiler: 'gcc-aarch64-linux-gnu' }
-          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
-          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf' }
+          - { os: 'ubuntu-latest', target: 'x86_64-unknown-netbsd', cross: true, compiler: '', osn: 'netbsd', arch: 'x86_64', pref: 'lib', ext: 'so' }
+          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false, compiler: '', osn: 'linux', arch: 'x86_64', pref: 'lib', ext: 'so' }
+          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', cross: true, compiler: 'gcc-aarch64-linux-gnu', osn: 'linux', arch: 'aarch64', pref: 'lib', ext: 'so' }
+          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf', osn: 'linux', arch: 'arm', pref: 'lib', ext: 'so' }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -51,8 +50,7 @@ jobs:
       # MAC: native/target/${{ matrix.platform.target }}/release/lib<name>.dylib
       # Windows: native/target/${{ matrix.platform.target }}/release/<name>.dll
       # Linux: native/target/${{ matrix.platform.target }}/release/lib<name>.so
-      #- uses: actions/upload-artifact@v3
-      #  if: matrix.platform.cross == false
-      #  with:
-      #    name: ${{ matrix.platform.target }}
-      #    path: native/target/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: reflexion-${{ matrix.platform.osn }}_${{ matrix.platform.arch }}.${{ matrix.platform.ext }}
+          path: native/target/${{ matrix.platform.target }}/release/${{ matrix.platform.pref }}reflexion.${{ matrix.platform.ext }}
