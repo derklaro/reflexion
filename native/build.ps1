@@ -21,8 +21,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-org.gradle.caching=true
-org.gradle.parallel=true
-org.gradle.warning.mode=all
-org.gradle.logging.level=info
-org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
+cargo build --release --no-default-features
+copy-item target/release/reflexion.dll ../reflexion/src/main/resources/reflexion-windows_x86_64/reflexion.dll -Force

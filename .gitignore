@@ -1,5 +1,21 @@
-.idea/
-.vscode/
+# include specific folders in .idea/
+!.idea
+.idea/*
+# copyright settings
+!/.idea/copyright
+.idea/copyright/*
+!/.idea/copyright/reflexion.xml
+!/.idea/copyright/profiles_settings.xml
+# Code Style settings
+!/.idea/codeStyles
+.idea/codeStyles/*
+!/.idea/codeStyles/Project.xml
+!/.idea/codeStyles/codeStyleConfig.xml
+# Inspection profiles
+!/.idea/inspectionProfiles
+.idea/inspectionProfiles/*
+!/.idea/inspectionProfiles/Project_Default.xml
+!/.idea/inspectionProfiles/profiles_settings.xml
 
 # gradle
 .gradle/
@@ -41,6 +57,9 @@ atlassian-ide-plugin.xml
 
 # HPROF
 *.hprof
+
+# VisualStudio
+.vscode/
 
 # Work dirs
 /incoming-distributions
