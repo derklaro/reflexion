@@ -4,7 +4,7 @@ final class FNativeReflect {
 
   // read field access
   public static native Object GetObjectFieldValue(String owner, String name, String sig, Object on);
-/*
+
   public static native boolean GetZFieldValue(String owner, String name, Object on);
 
   public static native byte GetBFieldValue(String owner, String name, Object on);
@@ -38,5 +38,5 @@ final class FNativeReflect {
 
   public static native void SetFFieldValue(String owner, String name, Object on, float val);
 
-  public static native void SetDFieldValue(String owner, String name, Object on, double val);*/
+  public static native void SetDFieldValue(String owner, String name, Object on, double val);
 }

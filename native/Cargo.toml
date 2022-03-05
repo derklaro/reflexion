@@ -6,6 +6,10 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/derklaro/reflexion"
 
+authors = [ "derklaro", "0utplay" ]
+keywords = [ "jni", "reflection", "reflexion" ]
+description = "A jni lib which allows read and write access to methods and fields."
+
 [dependencies]
 jni = "0.19.0"
 

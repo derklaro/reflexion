@@ -8,11 +8,17 @@ repositories {
 
 dependencies {
   // lombok
-  compileOnly("org.projectlombok:lombok:1.18.22")
-  annotationProcessor("org.projectlombok:lombok:1.18.22")
+  val lombokVersion = "1.18.22"
+  compileOnly("org.projectlombok", "lombok", lombokVersion)
+  annotationProcessor("org.projectlombok", "lombok", lombokVersion)
 
   // other libs
   compileOnly("org.jetbrains:annotations:23.0.0")
+
+  // testing
+  val junitVersion = "5.8.2"
+  testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
+  testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 }
 
 tasks.withType<JavaCompile> {
