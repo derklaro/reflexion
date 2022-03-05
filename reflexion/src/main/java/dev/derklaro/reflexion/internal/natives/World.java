@@ -1,4 +1,4 @@
-package dev.derklaro.reflexion.natives;
+package dev.derklaro.reflexion.internal.natives;
 
 public class World {
 
@@ -11,8 +11,9 @@ public class World {
   private final long l;
   private final float f;
   private final double d;
+  private final int[] arr;
 
-  public World(String str, boolean b, byte by, char c, short s, int i, long l, float f, double d) {
+  public World(String str, boolean b, byte by, char c, short s, int i, long l, float f, double d, int[] arr) {
     this.str = str;
     this.b = b;
     this.by = by;
@@ -22,6 +23,7 @@ public class World {
     this.l = l;
     this.f = f;
     this.d = d;
+    this.arr = arr;
   }
 
   public String getStr() {

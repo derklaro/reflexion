@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-native:
-    name: Build binary ${{ matrix.platform.target }}
+    name: Build rust ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
@@ -50,11 +50,11 @@ jobs:
       - name: Prepare output artifact for next step
         uses: actions/upload-artifact@v3
         with:
-          name: reflexion-${{ matrix.platform.osn }}_${{ matrix.platform.arch }}.${{ matrix.platform.ext }}
+          name: reflexion-${{ matrix.platform.osn }}_${{ matrix.platform.arch }}
           path: native/target/${{ matrix.platform.target }}/release/${{ matrix.platform.pref }}reflexion.${{ matrix.platform.ext }}
 
   build-jar:
-    name: Build on Java ${{ matrix.java }}
+    name: Build java ${{ matrix.java }}
     runs-on: ubuntu-latest
     needs: [ "build-native" ]
     strategy:

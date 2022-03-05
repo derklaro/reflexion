@@ -1,4 +1,4 @@
-package dev.derklaro.reflexion.natives;
+package dev.derklaro.reflexion.internal.natives;
 
 final class FNativeReflect {
 

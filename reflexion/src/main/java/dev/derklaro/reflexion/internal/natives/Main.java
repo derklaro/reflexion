@@ -1,15 +1,15 @@
-package dev.derklaro.reflexion.natives;
-
-import dev.derklaro.reflexion.NativeHelper;
+package dev.derklaro.reflexion.internal.natives;
 
 import java.lang.invoke.MethodHandles.Lookup;
 
 public class Main {
 
-  private static  boolean BOOL = false;
+  private static boolean BOOL = false;
 
   public static void main(String[] args) throws Exception {
-    NativeHelper.loadNative("reflexion.dll");
+    if (!NativeLibLoader.tryLoadNative()) {
+      throw new IllegalArgumentException("WHAT?");
+    }
 
     Lookup impl = (Lookup) FNativeReflect.GetObjectFieldValue(Lookup.class.getName().replace('.', '/'), "IMPL_LOOKUP", "Ljava/lang/invoke/MethodHandles$Lookup;", null);
     System.out.println(impl);
@@ -17,7 +17,7 @@ public class Main {
     System.out.println("-------");
 
     String a = World.class.getName().replace('.', '/');
-    World world = new World("World", false, (byte) 1, 'g', (short) 5, 55, 555, 5555f, 55555d);
+    World world = new World("World", false, (byte) 1, 'g', (short) 5, 55, 555, 5555f, 55555d, new int[]{1, 2, 3});
 
     System.out.println(FNativeReflect.GetObjectFieldValue(a, "str", "Ljava/lang/String;", world));
     System.out.println(FNativeReflect.GetZFieldValue(a, "b", world));
@@ -28,6 +28,7 @@ public class Main {
     System.out.println(FNativeReflect.GetJFieldValue(a, "l", world));
     System.out.println(FNativeReflect.GetFFieldValue(a, "f", world));
     System.out.println(FNativeReflect.GetDFieldValue(a, "d", world));
+    System.out.println(FNativeReflect.GetObjectFieldValue(a, "arr", "[I", world));
 
     // System.out.println("-------");
 
