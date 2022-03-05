@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-native:
-    name: Build rust ${{ matrix.platform.target }}
+    name: Build rust ${{ matrix.platform.target }}/${{ matrix.platform.os }}
     runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
@@ -54,12 +54,24 @@ jobs:
           path: native/target/${{ matrix.platform.target }}/release/${{ matrix.platform.pref }}reflexion.${{ matrix.platform.ext }}
 
   build-jar:
-    name: Build java ${{ matrix.java }}
-    runs-on: ubuntu-latest
+    name: Build java ${{ matrix.tc.java }}/${{ matrix.tc.os }}
+    runs-on: ${{ matrix.tc.os }}
     needs: [ "build-native" ]
     strategy:
       matrix:
-        java: [ 8, 11, 17 ]
+        tc:
+          # linux
+          - { os: 'ubuntu-latest', java: 8 }
+          - { os: 'ubuntu-latest', java: 11 }
+          - { os: 'ubuntu-latest', java: 17 }
+          # windows
+          - { os: 'windows-latest', java: 8 }
+          - { os: 'windows-latest', java: 11 }
+          - { os: 'windows-latest', java: 17 }
+          # don't do this on macos, the minute multiplier with 10 is extremely high...
+          # - { os: 'macos-latest', java: 8 }
+          # - { os: 'macos-latest', java: 11 }
+          # - { os: 'macos-latest', java: 17 }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -68,7 +80,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java }}
+          java-version: ${{ matrix.tc.java }}
           check-latest: true
           cache: 'gradle'
 
@@ -83,5 +95,5 @@ jobs:
       - name: Upload java result
         uses: actions/upload-artifact@v3
         with:
-          name: reflexion-${{ matrix.java }}.jar
+          name: reflexion-${{ matrix.tc.os }}-${{ matrix.tc.java }}
           path: reflexion/build/libs/reflexion-1.0-SNAPSHOT.jar
