@@ -71,7 +71,7 @@ final class NativeLibLoader {
     throw new UnsupportedOperationException();
   }
 
-  public static boolean tryLoadNative() throws IOException {
+  public static boolean tryLoadNative() {
     // check if we can load a native lib
     if (OS == UNSUPPORTED_OS || OS_ARCH.equals("unsupported")) {
       return false;
@@ -86,9 +86,15 @@ final class NativeLibLoader {
       return false;
     }
 
-    // create a temp file at the target
-    Path temp = Files.createTempFile("reflexion-", file.substring(file.lastIndexOf('.')));
-    Files.copy(nativeLibStream, temp, StandardCopyOption.REPLACE_EXISTING);
+    Path temp;
+    try {
+      // create a temp file at the target
+      temp = Files.createTempFile("reflexion-", file.substring(file.lastIndexOf('.')));
+      Files.copy(nativeLibStream, temp, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException exception) {
+      // unable to create the temp file / write to it...
+      return false;
+    }
 
     // try to not leave crap on the file system
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
