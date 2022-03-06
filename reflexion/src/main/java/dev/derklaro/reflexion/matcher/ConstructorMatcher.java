@@ -22,67 +22,21 @@
  * THE SOFTWARE.
  */
 
-package dev.derklaro.reflexion.internal.natives;
+package dev.derklaro.reflexion.matcher;
 
-public class World {
+import java.lang.reflect.Constructor;
+import lombok.NonNull;
 
-  private final String str;
-  private final boolean b;
-  private final byte by;
-  private final char c;
-  private final short s;
-  private final int i;
-  private final long l;
-  private final float f;
-  private final double d;
-  private final int[] arr;
+public final class ConstructorMatcher extends BaseMatcher<Constructor<?>, ConstructorMatcher> {
 
-  public World(String str, boolean b, byte by, char c, short s, int i, long l, float f, double d, int[] arr) {
-    this.str = str;
-    this.b = b;
-    this.by = by;
-    this.c = c;
-    this.s = s;
-    this.i = i;
-    this.l = l;
-    this.f = f;
-    this.d = d;
-    this.arr = arr;
+  private ConstructorMatcher() {
   }
 
-  public String getStr() {
-    return this.str;
+  public static @NonNull ConstructorMatcher newMatcher() {
+    return new ConstructorMatcher();
   }
 
-  public boolean isB() {
-    return this.b;
-  }
-
-  public byte getBy() {
-    return this.by;
-  }
-
-  public char getC() {
-    return this.c;
-  }
-
-  public short getS() {
-    return this.s;
-  }
-
-  public int getI() {
-    return this.i;
-  }
-
-  public long getL() {
-    return this.l;
-  }
-
-  public float getF() {
-    return this.f;
-  }
-
-  public double getD() {
-    return this.d;
+  public @NonNull ConstructorMatcher parameterCount(int count) {
+    return this.and(member -> member.getParameterCount() == count);
   }
 }
