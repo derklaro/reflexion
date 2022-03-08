@@ -24,10 +24,17 @@
 
 package dev.derklaro.reflexion.internal.util;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -109,5 +116,64 @@ public final class Util {
   @SuppressWarnings("unchecked")
   public static <T extends Throwable> void throwUnchecked(@NonNull Throwable throwable) throws T {
     throw (T) throwable;
+  }
+
+  public static <T> boolean allMatch(@Nullable T[] leftArr, @Nullable T[] rightArr, @NonNull BiPredicate<T, T> tester) {
+    // one array is null? they can't match
+    if (leftArr == null || rightArr == null) {
+      return leftArr == null && rightArr == null;
+    }
+
+    // must match if the arrays are the exact same or empty
+    if (leftArr == rightArr || (leftArr.length == 0 && rightArr.length == 0)) {
+      return true;
+    }
+
+    // if the sizes don't match we don't need to proceed
+    if (leftArr.length != rightArr.length) {
+      return false;
+    }
+
+    // only one item then compare only that one
+    if (leftArr.length == 1) {
+      return tester.test(leftArr[0], rightArr[0]);
+    }
+
+    // test all elements
+    for (int i = 0; i < leftArr.length; i++) {
+      if (!tester.test(leftArr[i], rightArr[i])) {
+        return false;
+      }
+    }
+
+    // all entries are matching
+    return true;
+  }
+
+  public static @NonNull <T, O> Collection<O> filterAndMap(
+    @NonNull Collection<T> in,
+    @NonNull Predicate<T> tester,
+    @NonNull Function<T, O> mapper
+  ) {
+    // skip empty collections
+    if (in.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    // singleton collection
+    if (in.size() == 1) {
+      T firstElement = in.iterator().next();
+      return tester.test(firstElement) ? Collections.singleton(mapper.apply(firstElement)) : Collections.emptySet();
+    }
+
+    // map all elements
+    Set<O> out = new HashSet<>();
+    for (T t : in) {
+      if (tester.test(t)) {
+        out.add(mapper.apply(t));
+      }
+    }
+
+    return out;
   }
 }

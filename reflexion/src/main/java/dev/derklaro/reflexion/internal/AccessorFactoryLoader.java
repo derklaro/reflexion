@@ -25,16 +25,28 @@
 package dev.derklaro.reflexion.internal;
 
 import dev.derklaro.reflexion.AccessorFactory;
+import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
+import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
+import java.util.Arrays;
 import lombok.NonNull;
 
 public final class AccessorFactoryLoader {
+
+  private static final AccessorFactory[] FACTORIES = new AccessorFactory[]{
+    new NativeAccessorFactory(), new MethodHandleAccessorFactory(), new BareAccessorFactory()
+  };
 
   private AccessorFactoryLoader() {
     throw new UnsupportedOperationException();
   }
 
   public static @NonNull AccessorFactory doLoadFactory() {
-    return new NativeAccessorFactory();
+    // filter out all non-available factories and use the best one
+    return Arrays.stream(FACTORIES)
+      .filter(AccessorFactory::isAvailable)
+      .sorted()
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("cannot happen"));
   }
 }

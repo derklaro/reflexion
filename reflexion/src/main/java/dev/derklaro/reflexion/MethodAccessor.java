@@ -26,6 +26,7 @@ package dev.derklaro.reflexion;
 
 import java.lang.reflect.Executable;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface MethodAccessor<T extends Executable> {
 
@@ -33,5 +34,9 @@ public interface MethodAccessor<T extends Executable> {
 
   @NonNull <V> Result<V> invoke();
 
+  @NonNull <V> Result<V> invoke(@Nullable Object instance);
+
   @NonNull <V> Result<V> invoke(@NonNull Object... args);
+
+  @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args);
 }

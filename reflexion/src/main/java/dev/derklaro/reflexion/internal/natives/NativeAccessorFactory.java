@@ -24,22 +24,20 @@
 
 package dev.derklaro.reflexion.internal.natives;
 
-import dev.derklaro.reflexion.AccessorFactory;
 import dev.derklaro.reflexion.FieldAccessor;
-import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.Result;
+import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
 import dev.derklaro.reflexion.internal.util.Type;
 import dev.derklaro.reflexion.internal.util.Util;
-import java.lang.reflect.Constructor;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class NativeAccessorFactory implements AccessorFactory {
+public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
 
   private static final boolean NATIVE_LOADED = NativeLibLoader.tryLoadNative();
   // native getters
@@ -74,13 +72,16 @@ public final class NativeAccessorFactory implements AccessorFactory {
   }
 
   @Override
-  public @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method) {
-    return null;
-  }
-
-  @Override
-  public @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion ref, @NonNull Constructor<?> ct) {
-    return null;
+  protected @Nullable Lookup getTrustedLookup() {
+    try {
+      return (Lookup) FNativeReflect.GetObjectFieldValue(
+        Type.getQualifiedName(Lookup.class),
+        "IMPL_LOOKUP",
+        Type.getSignature(Lookup.class),
+        null);
+    } catch (Exception exception) {
+      return super.getTrustedLookup();
+    }
   }
 
   @FunctionalInterface

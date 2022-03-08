@@ -35,6 +35,7 @@ import lombok.NonNull;
 final class NativeLibLoader {
 
   private static final Os UNSUPPORTED_OS = new Os("unsupported", "", "");
+  private static final String NATIVE_LIB_FILE_FORMAT = "reflexion-native/reflexion-%s_%s/%sreflexion.%s";
 
   private static final Os OS;
   private static final String OS_ARCH;
@@ -42,10 +43,8 @@ final class NativeLibLoader {
   static {
     // normalize the os name
     String osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-    if (osName.startsWith("linux")) {
+    if (osName.startsWith("linux") || osName.equals("netbsd")) {
       OS = new Os("linux", "lib", "so");
-    } else if (osName.equals("netbsd")) {
-      OS = new Os("netbsd", "lib", "so");
     } else if (osName.startsWith("windows")) {
       OS = new Os("windows", "", "dll");
     } else if (osName.startsWith("mac")) {
@@ -78,7 +77,7 @@ final class NativeLibLoader {
     }
 
     // get the full name to the folder and file we should search for the lib, then try to load it
-    String file = String.format("reflexion-%s_%s/%sreflexion.%s", OS.name, OS_ARCH, OS.libPrefix, OS.libExtension);
+    String file = String.format(NATIVE_LIB_FILE_FORMAT, OS.name, OS_ARCH, OS.libPrefix, OS.libExtension);
     InputStream nativeLibStream = NativeLibLoader.class.getClassLoader().getResourceAsStream(file);
 
     // check if the lib for the environment was found

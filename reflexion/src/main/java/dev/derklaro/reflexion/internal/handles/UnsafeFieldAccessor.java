@@ -22,20 +22,41 @@
  * THE SOFTWARE.
  */
 
-package dev.derklaro.reflexion;
+package dev.derklaro.reflexion.internal.handles;
 
-import java.lang.reflect.Constructor;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface AccessorFactory extends Comparable<AccessorFactory> {
+final class UnsafeFieldAccessor {
 
-  boolean isAvailable();
+  private UnsafeFieldAccessor() {
+    throw new UnsupportedOperationException();
+  }
 
-  @NonNull FieldAccessor wrapField(@NonNull Reflexion reflexion, @NonNull Field field);
+  public static @Nullable Lookup findImplLookup() {
+    try {
+      // get the impl_lookup field (fail-fast)
+      Field implLookupField = Lookup.class.getDeclaredField("IMPL_LOOKUP");
 
-  @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method);
+      // unsafe class lookup
+      Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
 
-  @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion reflexion, @NonNull Constructor<?> ct);
+      // go over the 'theUnsafe' field
+      Field field = unsafeClass.getDeclaredField("theUnsafe");
+      field.setAccessible(true);
+
+      // get the unsafe instance
+      sun.misc.Unsafe unsafe = (sun.misc.Unsafe) field.get(null);
+
+      // get the IMPL_LOOKUP field offset
+      Object implBase = unsafe.staticFieldBase(implLookupField);
+      long implOffset = unsafe.staticFieldOffset(implLookupField);
+
+      // get the impl_lookup
+      return (Lookup) unsafe.getObject(implBase, implOffset);
+    } catch (Exception exception) {
+      return null;
+    }
+  }
 }

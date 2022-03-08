@@ -38,9 +38,9 @@ import org.jetbrains.annotations.UnknownNullability;
 public final class Result<S> implements Supplier<S> {
 
   private final S result;
-  private final Exception exception;
+  private final Throwable exception;
 
-  private Result(S result, Exception exception) {
+  private Result(S result, Throwable exception) {
     this.result = result;
     this.exception = exception;
   }
@@ -53,7 +53,7 @@ public final class Result<S> implements Supplier<S> {
     try {
       T result = supplier.get();
       return success(result);
-    } catch (Exception exception) {
+    } catch (Throwable exception) {
       return exceptional(exception);
     }
   }
@@ -62,7 +62,7 @@ public final class Result<S> implements Supplier<S> {
     return new Result<>(result, null);
   }
 
-  public static @NonNull <T> Result<T> exceptional(@NonNull Exception exception) {
+  public static @NonNull <T> Result<T> exceptional(@NonNull Throwable exception) {
     return new Result<>(null, exception);
   }
 
@@ -78,7 +78,7 @@ public final class Result<S> implements Supplier<S> {
     return this.exception != null;
   }
 
-  public @NonNull Exception getException() {
+  public @NonNull Throwable getException() {
     if (this.exception != null) {
       return this.exception;
     }
@@ -99,7 +99,7 @@ public final class Result<S> implements Supplier<S> {
     return this.exception == null ? this.result : or;
   }
 
-  public @UnknownNullability S getOrElse(@NonNull Function<Exception, S> function) {
+  public @UnknownNullability S getOrElse(@NonNull Function<Throwable, S> function) {
     return this.exception == null ? this.result : function.apply(this.exception);
   }
 
@@ -119,7 +119,7 @@ public final class Result<S> implements Supplier<S> {
     }
   }
 
-  public @NonNull Result<S> mapExceptional(@NonNull Function<Exception, Exception> function) {
+  public @NonNull Result<S> mapExceptional(@NonNull Function<Throwable, Throwable> function) {
     return this.exception == null ? this : Result.exceptional(function.apply(this.exception));
   }
 
@@ -129,13 +129,13 @@ public final class Result<S> implements Supplier<S> {
     }
   }
 
-  public void ifExceptional(@NonNull Consumer<Exception> consumer) {
+  public void ifExceptional(@NonNull Consumer<Throwable> consumer) {
     if (this.exception != null) {
       consumer.accept(this.exception);
     }
   }
 
-  public void consume(@NonNull BiConsumer<S, Exception> consumer) {
+  public void consume(@NonNull BiConsumer<S, Throwable> consumer) {
     consumer.accept(this.result, this.exception);
   }
 
@@ -146,6 +146,6 @@ public final class Result<S> implements Supplier<S> {
   @FunctionalInterface
   public interface ExceptionalSupplier<T> {
 
-    @Nullable T get() throws Exception;
+    @Nullable T get() throws Throwable;
   }
 }

@@ -24,18 +24,9 @@
 
 package dev.derklaro.reflexion;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import lombok.NonNull;
+public class ReflexionException extends RuntimeException {
 
-public interface AccessorFactory extends Comparable<AccessorFactory> {
-
-  boolean isAvailable();
-
-  @NonNull FieldAccessor wrapField(@NonNull Reflexion reflexion, @NonNull Field field);
-
-  @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method);
-
-  @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion reflexion, @NonNull Constructor<?> ct);
+  public ReflexionException(Throwable cause) {
+    super(cause);
+  }
 }

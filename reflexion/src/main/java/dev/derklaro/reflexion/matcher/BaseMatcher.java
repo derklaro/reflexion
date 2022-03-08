@@ -24,7 +24,9 @@
 
 package dev.derklaro.reflexion.matcher;
 
+import dev.derklaro.reflexion.internal.util.Util;
 import java.lang.reflect.Member;
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.NonNull;
@@ -88,6 +90,27 @@ public abstract class BaseMatcher<T extends Member, M extends BaseMatcher<T, M>>
     return this.and(member -> {
       Class<?> type = typeReader.apply(member);
       return type != null && expectedType.isAssignableFrom(type);
+    });
+  }
+
+  public @NonNull M exactTypes(@NonNull Function<T, Class<?>[]> typesReader, @NonNull Class<?>... expectedTypes) {
+    return this.and(member -> {
+      Class<?>[] types = typesReader.apply(member);
+      return types != null && Arrays.equals(types, expectedTypes);
+    });
+  }
+
+  public @NonNull M superTypes(@NonNull Function<T, Class<?>[]> typesReader, @NonNull Class<?>... expectedTypes) {
+    return this.and(member -> {
+      Class<?>[] types = typesReader.apply(member);
+      return Util.allMatch(expectedTypes, types, (expected, actual) -> actual.isAssignableFrom(expected));
+    });
+  }
+
+  public @NonNull M derivedTypes(@NonNull Function<T, Class<?>[]> reader, @NonNull Class<?>... expectedTypes) {
+    return this.and(member -> {
+      Class<?>[] types = reader.apply(member);
+      return Util.allMatch(expectedTypes, types, Class::isAssignableFrom);
     });
   }
 

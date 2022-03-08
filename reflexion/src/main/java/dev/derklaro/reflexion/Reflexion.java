@@ -32,7 +32,9 @@ import dev.derklaro.reflexion.matcher.MethodMatcher;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +49,11 @@ public final class Reflexion {
   // this is null when the reflexion is not bound to anything
   @Nullable
   private final Object binding;
+
+  // class member caches, created lazily when needed
+  private Set<Field> fields;
+  private Set<Method> methods;
+  private Set<Constructor<?>> constructors;
 
   private Reflexion(@NonNull Class<?> wrappedClass, @Nullable Object binding) {
     this.wrappedClass = wrappedClass;
@@ -141,47 +148,20 @@ public final class Reflexion {
   // ------------------
 
   public @NonNull Optional<FieldAccessor> findField(@NonNull String name) {
-    try {
-      // try a public field
-      Field field = this.wrappedClass.getField(name);
-      return Optional.of(ACCESSOR_FACTORY.wrapField(this, field));
-    } catch (NoSuchFieldException exception) {
-      // search through all super classes to find a declared field
-      Class<?> curr = this.wrappedClass;
-      do {
-        try {
-          Field field = curr.getDeclaredField(name);
-          return Optional.of(ACCESSOR_FACTORY.wrapField(this, field));
-        } catch (NoSuchFieldException ignored) {
-          // just continue
-        }
-      } while ((curr = curr.getSuperclass()) != null);
-
-      // not found
-      return Optional.empty();
-    }
+    return this.findField(FieldMatcher.newMatcher().hasName(name));
   }
 
   public @NonNull Optional<FieldAccessor> findField(@NonNull FieldMatcher matcher) {
-    // try a public field
-    for (Field field : this.wrappedClass.getFields()) {
+    for (Field field : this.getFieldCache()) {
       if (matcher.test(field)) {
         return Optional.of(ACCESSOR_FACTORY.wrapField(this, field));
       }
     }
-
-    // search through all super classes to find a declared field
-    Class<?> curr = this.wrappedClass;
-    do {
-      for (Field field : curr.getDeclaredFields()) {
-        if (matcher.test(field)) {
-          return Optional.of(ACCESSOR_FACTORY.wrapField(this, field));
-        }
-      }
-    } while ((curr = curr.getSuperclass()) != null);
-
-    // not found
     return Optional.empty();
+  }
+
+  public @NonNull Collection<FieldAccessor> findFields(@NonNull FieldMatcher matcher) {
+    return Util.filterAndMap(this.getFieldCache(), matcher, field -> ACCESSOR_FACTORY.wrapField(this, field));
   }
 
   // ------------------
@@ -189,47 +169,20 @@ public final class Reflexion {
   // ------------------
 
   public @NonNull Optional<MethodAccessor<Method>> findMethod(@NonNull String name, @NonNull Class<?>... paramTypes) {
-    try {
-      // try a public method
-      Method method = this.wrappedClass.getMethod(name, paramTypes);
-      return Optional.of(ACCESSOR_FACTORY.wrapMethod(this, method));
-    } catch (NoSuchMethodException exception) {
-      // search through all super classes to find a declared method
-      Class<?> curr = this.wrappedClass;
-      do {
-        try {
-          Method method = curr.getDeclaredMethod(name, paramTypes);
-          return Optional.of(ACCESSOR_FACTORY.wrapMethod(this, method));
-        } catch (NoSuchMethodException ignored) {
-          // just continue
-        }
-      } while ((curr = curr.getSuperclass()) != null);
-
-      // not found
-      return Optional.empty();
-    }
+    return this.findMethod(MethodMatcher.newMatcher().hasName(name).exactTypes(Method::getParameterTypes, paramTypes));
   }
 
   public @NonNull Optional<MethodAccessor<Method>> findMethod(@NonNull MethodMatcher matcher) {
-    // try a public method
-    for (Method method : this.wrappedClass.getMethods()) {
+    for (Method method : this.getMethodCache()) {
       if (matcher.test(method)) {
         return Optional.of(ACCESSOR_FACTORY.wrapMethod(this, method));
       }
     }
-
-    // search through all super classes to find a declared method
-    Class<?> curr = this.wrappedClass;
-    do {
-      for (Method method : curr.getDeclaredMethods()) {
-        if (matcher.test(method)) {
-          return Optional.of(ACCESSOR_FACTORY.wrapMethod(this, method));
-        }
-      }
-    } while ((curr = curr.getSuperclass()) != null);
-
-    // not found
     return Optional.empty();
+  }
+
+  public @NonNull Collection<MethodAccessor<Method>> findMethods(@NonNull MethodMatcher matcher) {
+    return Util.filterAndMap(this.getMethodCache(), matcher, method -> ACCESSOR_FACTORY.wrapMethod(this, method));
   }
 
   // ------------------
@@ -237,46 +190,44 @@ public final class Reflexion {
   // ------------------
 
   public @NonNull Optional<MethodAccessor<Constructor<?>>> findConstructor(@NonNull Class<?>... paramTypes) {
-    try {
-      // try a public constructor
-      Constructor<?> constructor = this.wrappedClass.getConstructor(paramTypes);
-      return Optional.of(ACCESSOR_FACTORY.wrapConstructor(this, constructor));
-    } catch (NoSuchMethodException exception) {
-      // search through all super classes to find a declared constructor
-      Class<?> curr = this.wrappedClass;
-      do {
-        try {
-          Constructor<?> constructor = curr.getDeclaredConstructor(paramTypes);
-          return Optional.of(ACCESSOR_FACTORY.wrapConstructor(this, constructor));
-        } catch (NoSuchMethodException ignored) {
-          // just continue
-        }
-      } while ((curr = curr.getSuperclass()) != null);
-
-      // not found
-      return Optional.empty();
-    }
+    return this.findConstructor(ConstructorMatcher.newMatcher().exactTypes(Constructor::getParameterTypes, paramTypes));
   }
 
-  public @NonNull Optional<MethodAccessor<Constructor<?>>> findMethod(@NonNull ConstructorMatcher matcher) {
-    // try a public constructor
-    for (Constructor<?> constructor : this.wrappedClass.getConstructors()) {
+  public @NonNull Optional<MethodAccessor<Constructor<?>>> findConstructor(@NonNull ConstructorMatcher matcher) {
+    for (Constructor<?> constructor : this.getConstructorCache()) {
       if (matcher.test(constructor)) {
         return Optional.of(ACCESSOR_FACTORY.wrapConstructor(this, constructor));
       }
     }
-
-    // search through all super classes to find a declared constructor
-    Class<?> curr = this.wrappedClass;
-    do {
-      for (Constructor<?> constructor : this.wrappedClass.getDeclaredConstructors()) {
-        if (matcher.test(constructor)) {
-          return Optional.of(ACCESSOR_FACTORY.wrapConstructor(this, constructor));
-        }
-      }
-    } while ((curr = curr.getSuperclass()) != null);
-
-    // not found
     return Optional.empty();
+  }
+
+  public @NonNull Collection<MethodAccessor<Constructor<?>>> findConstructors(@NonNull ConstructorMatcher matcher) {
+    return Util.filterAndMap(this.getConstructorCache(), matcher, ctr -> ACCESSOR_FACTORY.wrapConstructor(this, ctr));
+  }
+
+  // ------------------
+  // private accessors
+  // ------------------
+
+  private @NonNull Set<Field> getFieldCache() {
+    if (this.fields == null) {
+      this.fields = ReflexionPopulator.getAllFields(this.wrappedClass);
+    }
+    return this.fields;
+  }
+
+  private @NonNull Set<Method> getMethodCache() {
+    if (this.methods == null) {
+      this.methods = ReflexionPopulator.getAllMethods(this.wrappedClass);
+    }
+    return this.methods;
+  }
+
+  private @NonNull Set<Constructor<?>> getConstructorCache() {
+    if (this.constructors == null) {
+      this.constructors = ReflexionPopulator.getAllConstructors(this.wrappedClass);
+    }
+    return this.constructors;
   }
 }
