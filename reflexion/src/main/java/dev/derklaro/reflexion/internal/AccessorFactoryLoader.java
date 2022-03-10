@@ -28,12 +28,15 @@ import dev.derklaro.reflexion.AccessorFactory;
 import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
 import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ServiceLoader;
 import lombok.NonNull;
 
 public final class AccessorFactoryLoader {
 
-  private static final AccessorFactory[] FACTORIES = new AccessorFactory[]{
+  private static final AccessorFactory[] DEFAULT_FACTORIES = new AccessorFactory[]{
     new NativeAccessorFactory(), new MethodHandleAccessorFactory(), new BareAccessorFactory()
   };
 
@@ -42,11 +45,32 @@ public final class AccessorFactoryLoader {
   }
 
   public static @NonNull AccessorFactory doLoadFactory() {
-    // filter out all non-available factories and use the best one
-    return Arrays.stream(FACTORIES)
-      .filter(AccessorFactory::isAvailable)
-      .sorted()
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException("cannot happen"));
+    // load all other factories, maybe brought in by external libs
+    ClassLoader cl = AccessorFactoryLoader.class.getClassLoader();
+    ServiceLoader<AccessorFactory> loader = ServiceLoader.load(AccessorFactory.class, cl);
+
+    // find all factories which are available from the external ones
+    List<AccessorFactory> availableFactories = new ArrayList<>();
+    for (AccessorFactory factory : loader) {
+      if (factory.isAvailable()) {
+        availableFactories.add(factory);
+      }
+    }
+
+    // add all factories which are available from the default ones
+    for (AccessorFactory factory : DEFAULT_FACTORIES) {
+      if (factory.isAvailable()) {
+        availableFactories.add(factory);
+      }
+    }
+
+    // if no factory is available this means we should hard crash (should by default never happen)
+    if (availableFactories.isEmpty()) {
+      throw new IllegalStateException("no accessor factory is available");
+    }
+
+    // sort the list to put the best factory to the top
+    Collections.sort(availableFactories);
+    return availableFactories.get(0);
   }
 }
