@@ -71,9 +71,8 @@ jobs:
       matrix:
         tc:
           # linux
-          - { os: 'ubuntu-latest', java: 8 }
           - { os: 'ubuntu-latest', java: 11 }
-          - { os: 'ubuntu-latest', java: 19-ea }
+          - { os: 'ubuntu-latest', java: 17 }
           # windows
           - { os: 'windows-latest', java: 17 }
           # don't do this on macos, the minute multiplier with 10 is extremely high...
