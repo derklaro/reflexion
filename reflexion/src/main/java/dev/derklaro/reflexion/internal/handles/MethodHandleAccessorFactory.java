@@ -35,12 +35,13 @@ import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodHandleAccessorFactory implements AccessorFactory {
@@ -71,8 +72,9 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method) {
     try {
-      MethodHandle handle = this.getLookup().unreflect(method);
-      return new MethodHandleMethodAccessor<>(method, reflexion, handle);
+      MethodHandle unreflected = this.getLookup().unreflect(method);
+      boolean staticMethod = Modifier.isStatic(method.getModifiers());
+      return new MethodHandleMethodAccessor(method, reflexion, this.convertToGeneric(unreflected, staticMethod, false));
     } catch (Exception exception) {
       throw new ReflexionException(exception);
     }
@@ -81,8 +83,8 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion rfx, @NonNull Constructor<?> ctr) {
     try {
-      MethodHandle handle = this.getLookup().unreflectConstructor(ctr);
-      return new MethodHandleMethodAccessor<>(ctr, rfx, handle);
+      MethodHandle unreflected = this.getLookup().unreflectConstructor(ctr);
+      return new MethodHandleConstructorAccessor(ctr, rfx, this.convertToGeneric(unreflected, false, true));
     } catch (Exception exception) {
       throw new ReflexionException(exception);
     }
@@ -94,6 +96,23 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
 
   private @NonNull Lookup getLookup() {
     return this.trustedLookup == null ? MethodHandles.lookup() : this.trustedLookup;
+  }
+
+  private @NonNull MethodHandle convertToGeneric(@NonNull MethodHandle handle, boolean staticMethod, boolean ctx) {
+    MethodHandle target = handle.asFixedArity();
+    // special thing - we do not need the trailing array if we have 0 arguments anyway
+    int paramCount = handle.type().parameterCount() - (ctx || staticMethod ? 0 : 1);
+    MethodType methodType = MethodType.genericMethodType(ctx ? 0 : 1, paramCount > 0);
+    if (paramCount > 0) {
+      // spread the arguments we give into the handle only if we're not targeting a no-args method
+      target = target.asSpreader(Object[].class, paramCount);
+    }
+    // adds a leading 'this' argument which we can ignore
+    if (staticMethod) {
+      target = MethodHandles.dropArguments(target, 0, Object.class);
+    }
+    // convert the type to finish
+    return target.asType(methodType);
   }
 
   @Override
@@ -167,20 +186,20 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
   }
 
-  private static final class MethodHandleMethodAccessor<T extends Executable> implements MethodAccessor<T> {
+  private static final class MethodHandleMethodAccessor implements MethodAccessor<Method> {
 
-    private final T method;
+    private final Method method;
     private final Reflexion reflexion;
     private final MethodHandle methodHandle;
 
-    public MethodHandleMethodAccessor(T method, Reflexion reflexion, MethodHandle methodHandle) {
+    public MethodHandleMethodAccessor(Method method, Reflexion reflexion, MethodHandle methodHandle) {
       this.method = method;
       this.reflexion = reflexion;
       this.methodHandle = methodHandle;
     }
 
     @Override
-    public @NonNull T getMember() {
+    public @NonNull Method getMember() {
       return this.method;
     }
 
@@ -201,14 +220,69 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull <V> Result<V> invoke(@NonNull Object... args) {
+    public @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args) {
       return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding(), args);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
-      return Result.tryExecute(() -> (V) this.methodHandle.invoke(instance, args));
+      // convert no-args actually to a no-args call
+      if (args.length == 0) {
+        return this.invoke(instance);
+      } else {
+        return Result.tryExecute(() -> (V) this.methodHandle.invoke(instance, args));
+      }
+    }
+  }
+
+  private static final class MethodHandleConstructorAccessor implements MethodAccessor<Constructor<?>> {
+
+    private final Reflexion reflexion;
+    private final Constructor<?> method;
+    private final MethodHandle methodHandle;
+
+    public MethodHandleConstructorAccessor(Constructor<?> method, Reflexion reflexion, MethodHandle methodHandle) {
+      this.method = method;
+      this.reflexion = reflexion;
+      this.methodHandle = methodHandle;
+    }
+
+    @Override
+    public @NonNull Constructor<?> getMember() {
+      return this.method;
+    }
+
+    @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
+    }
+
+    @Override
+    public @NonNull <V> Result<V> invoke() {
+      return this.invoke(null);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public @NonNull <V> Result<V> invoke(@Nullable Object instance) {
+      return Result.tryExecute(() -> (V) this.methodHandle.invoke());
+    }
+
+    @Override
+    public @NonNull <V> Result<V> invokeWithArgs(@NotNull @NonNull Object... args) {
+      return this.invoke(null, args);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NotNull @NonNull Object... args) {
+      // convert no args calls back to an actual no-args invocation
+      if (args.length == 0) {
+        return this.invoke(null);
+      } else {
+        return Result.tryExecute(() -> (V) this.methodHandle.invoke(args));
+      }
     }
   }
 }

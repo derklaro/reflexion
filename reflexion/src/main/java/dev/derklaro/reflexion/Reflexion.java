@@ -131,6 +131,8 @@ public final class Reflexion {
 
   // the class wrapped by this reflexion instance
   private final Class<?> wrappedClass;
+  // the accessor factory we should use
+  private final AccessorFactory accFactory;
   // the object to which this reflexion instance is bound
   // this is null when the reflexion is not bound to anything
   @Nullable
@@ -147,11 +149,13 @@ public final class Reflexion {
    *
    * @param wrappedClass the class wrapped by the constructed reflexion instance.
    * @param binding      the instance to which the reflection instance is bound, null for no binding.
+   * @param factory      the accessor factory to use when wrapping reflection objects.
    * @throws NullPointerException if the given wrapped class is null.
    */
-  private Reflexion(@NonNull Class<?> wrappedClass, @Nullable Object binding) {
+  private Reflexion(@NonNull Class<?> wrappedClass, @Nullable Object binding, @NonNull AccessorFactory factory) {
     this.wrappedClass = wrappedClass;
     this.binding = binding;
+    this.accFactory = factory;
   }
 
   // ------------------
@@ -207,7 +211,25 @@ public final class Reflexion {
    * @throws NullPointerException if the given class to wrap is null.
    */
   public static @NonNull Reflexion on(@NonNull Class<?> clazz, @Nullable Object binding) {
-    return new Reflexion(clazz, binding);
+    return on(clazz, binding, ACCESSOR_FACTORY);
+  }
+
+  /**
+   * Constructs a new reflexion instance wrapping the given class and binds it to the given object instance, if any is
+   * provided.
+   *
+   * @param clazz   the class to wrap in the new reflexion object.
+   * @param binding the instance of the object to bind the reflexion instance to, can be null for no binding.
+   * @param factory the accessor factory to use when constructing accessor in the reflexion object.
+   * @return a new reflexion instance wrapping the given class and optionally bound to the given instance.
+   * @throws NullPointerException if the given class to wrap is null.
+   */
+  public static @NonNull Reflexion on(
+    @NonNull Class<?> clazz,
+    @Nullable Object binding,
+    @NonNull AccessorFactory factory
+  ) {
+    return new Reflexion(clazz, binding, factory);
   }
 
   /**
@@ -262,6 +284,35 @@ public final class Reflexion {
       // class not found, nothing to wrap
       return Optional.empty();
     }
+  }
+
+  /**
+   * Tries to find and wrap a class with one of the given names. The order of the given name array will be the same as
+   * the search order. This method will make use of the first available class loader in the context in the following
+   * order:
+   * <ol>
+   *   <li>the thread context class loader.
+   *   <li>the reflexion class loader.
+   *   <li>the system class loader.
+   * </ol>
+   * <p>
+   * This method will not initialize the class when wrapping it.
+   *
+   * @param names the names of the class to search for.
+   * @return an optional reflexion instance wrapping the first class which can be resolved from the given names.
+   * @throws NullPointerException if the given name array or an element of it is null.
+   */
+  public static @NonNull Optional<Reflexion> findAny(@NonNull String @NonNull ... names) {
+    // search until one returns a value that is present
+    for (String name : names) {
+      Optional<Reflexion> reflexion = find(name);
+      if (reflexion.isPresent()) {
+        // found one
+        return reflexion;
+      }
+    }
+    // found none
+    return Optional.empty();
   }
 
   /**
@@ -382,7 +433,7 @@ public final class Reflexion {
    */
   @Contract(value = "_ -> new", pure = true)
   public @NonNull Reflexion bind(@Nullable Object binding) {
-    return new Reflexion(this.wrappedClass, binding);
+    return new Reflexion(this.wrappedClass, binding, this.accFactory);
   }
 
   /**
@@ -401,6 +452,15 @@ public final class Reflexion {
    */
   public @Nullable Object getBinding() {
     return this.binding;
+  }
+
+  /**
+   * Get the accessor factory which is associated with this reflexion instance.
+   *
+   * @return the associated accessor factory with this reflexion instance.
+   */
+  public @NonNull AccessorFactory getAccessorFactory() {
+    return this.accFactory;
   }
 
   // ------------------
@@ -455,7 +515,7 @@ public final class Reflexion {
   public @NonNull Optional<FieldAccessor> findField(@NonNull FieldMatcher matcher) {
     for (Field field : this.getFieldCache()) {
       if (matcher.test(field)) {
-        return Optional.of(ACCESSOR_FACTORY.wrapField(this, field));
+        return Optional.of(this.accFactory.wrapField(this, field));
       }
     }
     return Optional.empty();
@@ -480,7 +540,7 @@ public final class Reflexion {
    * @throws NullPointerException if the given matcher is null.
    */
   public @NonNull Collection<FieldAccessor> findFields(@NonNull FieldMatcher matcher) {
-    return Util.filterAndMap(this.getFieldCache(), matcher, field -> ACCESSOR_FACTORY.wrapField(this, field));
+    return Util.filterAndMap(this.getFieldCache(), matcher, field -> this.accFactory.wrapField(this, field));
   }
 
   // ------------------
@@ -538,7 +598,7 @@ public final class Reflexion {
   public @NonNull Optional<MethodAccessor<Method>> findMethod(@NonNull MethodMatcher matcher) {
     for (Method method : this.getMethodCache()) {
       if (matcher.test(method)) {
-        return Optional.of(ACCESSOR_FACTORY.wrapMethod(this, method));
+        return Optional.of(this.accFactory.wrapMethod(this, method));
       }
     }
     return Optional.empty();
@@ -564,7 +624,7 @@ public final class Reflexion {
    * @throws NullPointerException if the given matcher is null.
    */
   public @NonNull Collection<MethodAccessor<Method>> findMethods(@NonNull MethodMatcher matcher) {
-    return Util.filterAndMap(this.getMethodCache(), matcher, method -> ACCESSOR_FACTORY.wrapMethod(this, method));
+    return Util.filterAndMap(this.getMethodCache(), matcher, method -> this.accFactory.wrapMethod(this, method));
   }
 
   // ------------------
@@ -622,7 +682,7 @@ public final class Reflexion {
   public @NonNull Optional<MethodAccessor<Constructor<?>>> findConstructor(@NonNull ConstructorMatcher matcher) {
     for (Constructor<?> constructor : this.getConstructorCache()) {
       if (matcher.test(constructor)) {
-        return Optional.of(ACCESSOR_FACTORY.wrapConstructor(this, constructor));
+        return Optional.of(this.accFactory.wrapConstructor(this, constructor));
       }
     }
     return Optional.empty();
@@ -649,7 +709,7 @@ public final class Reflexion {
    * @throws NullPointerException if the given matcher is null.
    */
   public @NonNull Collection<MethodAccessor<Constructor<?>>> findConstructors(@NonNull ConstructorMatcher matcher) {
-    return Util.filterAndMap(this.getConstructorCache(), matcher, ctr -> ACCESSOR_FACTORY.wrapConstructor(this, ctr));
+    return Util.filterAndMap(this.getConstructorCache(), matcher, ctr -> this.accFactory.wrapConstructor(this, ctr));
   }
 
   // ------------------

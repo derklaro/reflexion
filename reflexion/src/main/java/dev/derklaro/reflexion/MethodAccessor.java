@@ -70,7 +70,7 @@ public interface MethodAccessor<T extends Executable> extends BaseAccessor<T> {
    * @param <V>  the type of values returned by the wrapped method.
    * @return the result instance of the invocation, either holding the result of the method or any exception thrown.
    */
-  @NonNull <V> Result<V> invoke(@NonNull Object... args);
+  @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args);
 
   /**
    * Invokes the underlying method using the given instance. This method never throws an exception all exceptions are

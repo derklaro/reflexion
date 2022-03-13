@@ -157,7 +157,7 @@ public final class BareAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull <V> Result<V> invoke(@NonNull Object... args) {
+    public @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args) {
       return this.invoke(this.reflexion.getBinding(), args);
     }
 
@@ -201,13 +201,13 @@ public final class BareAccessorFactory implements AccessorFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull <V> Result<V> invoke(@NonNull Object... args) {
+    public @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args) {
       return Result.tryExecute(() -> (V) this.constructor.newInstance(args));
     }
 
     @Override
     public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
-      return this.invoke(args);
+      return this.invokeWithArgs(args);
     }
   }
 }
