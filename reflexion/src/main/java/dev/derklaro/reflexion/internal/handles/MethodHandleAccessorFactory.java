@@ -39,8 +39,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodHandleAccessorFactory implements AccessorFactory {
@@ -97,7 +97,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   }
 
   @Override
-  public int compareTo(@NotNull AccessorFactory o) {
+  public int compareTo(@NonNull AccessorFactory o) {
     // always prefer native over this one
     if (o instanceof NativeAccessorFactory) {
       return 1;
@@ -133,13 +133,18 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull Field getField() {
+    public @NonNull Field getMember() {
       return this.field;
     }
 
     @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
+    }
+
+    @Override
     public @NonNull <T> Result<T> getValue() {
-      return this.getValue(this.reflexion.getBinding());
+      return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
     @Override
@@ -150,7 +155,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
 
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
-      return this.setValue(this.reflexion.getBinding(), value);
+      return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
     }
 
     @Override
@@ -175,13 +180,18 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull T getMethod() {
+    public @NonNull T getMember() {
       return this.method;
     }
 
     @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
+    }
+
+    @Override
     public @NonNull <V> Result<V> invoke() {
-      return this.invoke(this.reflexion.getBinding());
+      return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
     @Override
@@ -191,13 +201,13 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull <V> Result<V> invoke(@NotNull @NonNull Object... args) {
-      return this.invoke(this.reflexion.getBinding(), args);
+    public @NonNull <V> Result<V> invoke(@NonNull Object... args) {
+      return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding(), args);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NotNull @NonNull Object... args) {
+    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
       return Result.tryExecute(() -> (V) this.methodHandle.invoke(instance, args));
     }
   }

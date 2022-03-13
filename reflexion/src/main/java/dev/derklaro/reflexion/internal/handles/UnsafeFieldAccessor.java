@@ -55,7 +55,9 @@ final class UnsafeFieldAccessor {
 
       // get the impl_lookup
       return (Lookup) unsafe.getObject(implBase, implOffset);
-    } catch (Exception exception) {
+    } catch (Throwable exception) {
+      // we catch a Throwable to prevent NoSuchMethodErrors from happening in the future when the 'staticFieldBase' and
+      // 'staticFieldOffset' methods are removed from the unsafe class
       return null;
     }
   }

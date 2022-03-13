@@ -26,6 +26,7 @@ package dev.derklaro.reflexion;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,25 +34,62 @@ import java.util.Set;
 import java.util.function.Function;
 import lombok.NonNull;
 
+/**
+ * Internal utility class to read all java.lang.reflect members from a class and it's super classes.
+ *
+ * @since 1.0
+ */
 final class ReflexionPopulator {
 
   private ReflexionPopulator() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Get all (declared) fields in the given class, and it's super classes.
+   *
+   * @param declaringClass the class to start the search from.
+   * @return all fields in the given class, and it's super classes.
+   * @throws NullPointerException if the given topmost class is null.
+   */
   public static @NonNull Set<Field> getAllFields(@NonNull Class<?> declaringClass) {
     return mappingHierarchyTravel(declaringClass, Class::getDeclaredFields, Class::getFields);
   }
 
+  /**
+   * Get all (declared) methods in the given class, and it's super classes.
+   *
+   * @param declaringClass the class to start the search from.
+   * @return all methods in the given class, and it's super classes.
+   * @throws NullPointerException if the given topmost class is null.
+   */
   public static @NonNull Set<Method> getAllMethods(@NonNull Class<?> declaringClass) {
     return mappingHierarchyTravel(declaringClass, Class::getDeclaredMethods, Class::getMethods);
   }
 
+  /**
+   * Get all (declared) constructors in the given class, and it's super classes.
+   *
+   * @param declaringClass the class to start the search from.
+   * @return all constructors in the given class and it's super classes.
+   * @throws NullPointerException if the given topmost class is null.
+   */
   public static @NonNull Set<Constructor<?>> getAllConstructors(@NonNull Class<?> declaringClass) {
     return mappingHierarchyTravel(declaringClass, Class::getDeclaredConstructors, Class::getConstructors);
   }
 
-  private static @NonNull <T> Set<T> mappingHierarchyTravel(
+  /**
+   * Travels down the class tree beginning from the given topmost class, extracting all public and declared members from
+   * each visited class (using the given extractor functions) and collects them into a set. This method is not cached.
+   *
+   * @param top             the topmost class to start the search from.
+   * @param extractor       the extractor function for declared members.
+   * @param publicExtractor the extractor function for public members.
+   * @param <T>             the type of member which gets extracted from the class tree.
+   * @return all extracted members from the class tree.
+   * @throws NullPointerException if the given topmost class or one of the extractor functions is null.
+   */
+  private static @NonNull <T extends Member> Set<T> mappingHierarchyTravel(
     @NonNull Class<?> top,
     @NonNull Function<Class<?>, T[]> extractor,
     @NonNull Function<Class<?>, T[]> publicExtractor

@@ -22,37 +22,14 @@
  * THE SOFTWARE.
  */
 
-package dev.derklaro.reflexion.matcher;
+package dev.derklaro.reflexion.test;
 
-import java.lang.reflect.Constructor;
-import lombok.NonNull;
+import dev.derklaro.reflexion.Reflexion;
+import java.lang.invoke.MethodHandles.Lookup;
 
-/**
- * A matcher for constructors.
- *
- * @since 1.0
- */
-public final class ConstructorMatcher extends BaseMatcher<Constructor<?>, ConstructorMatcher> {
+public class Main {
 
-  private ConstructorMatcher() {
-  }
-
-  /**
-   * Constructs a new constructor matcher instance.
-   *
-   * @return a new constructor matcher.
-   */
-  public static @NonNull ConstructorMatcher newMatcher() {
-    return new ConstructorMatcher();
-  }
-
-  /**
-   * Checks if the constructor has the given amount of parameters.
-   *
-   * @param count the expected amount of parameters.
-   * @return the same instance as used to call the method, for chaining.
-   */
-  public @NonNull ConstructorMatcher parameterCount(int count) {
-    return this.and(member -> member.getParameterCount() == count);
+  public static void main(String[] args) {
+    System.out.println(Reflexion.on(Lookup.class).findField("IMPL_LOOKUP").get().getValue().getOrThrow());
   }
 }

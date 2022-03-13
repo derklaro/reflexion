@@ -33,8 +33,8 @@ import dev.derklaro.reflexion.Result;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BareAccessorFactory implements AccessorFactory {
@@ -68,14 +68,14 @@ public final class BareAccessorFactory implements AccessorFactory {
   public @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion rfx, @NonNull Constructor<?> ctr) {
     try {
       ctr.setAccessible(true);
-      return new BareConstructorAccessor(ctr);
+      return new BareConstructorAccessor(rfx, ctr);
     } catch (Exception exception) {
       throw new ReflexionException(exception);
     }
   }
 
   @Override
-  public int compareTo(@NotNull AccessorFactory o) {
+  public int compareTo(@NonNull AccessorFactory o) {
     // always prefer other factories over this one
     return o instanceof BareAccessorFactory ? 0 : 1;
   }
@@ -91,13 +91,18 @@ public final class BareAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull Field getField() {
+    public @NonNull Field getMember() {
       return this.field;
     }
 
     @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
+    }
+
+    @Override
     public @NonNull <T> Result<T> getValue() {
-      return this.getValue(this.reflexion.getBinding());
+      return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
     @Override
@@ -108,7 +113,7 @@ public final class BareAccessorFactory implements AccessorFactory {
 
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
-      return this.setValue(this.reflexion.getBinding(), value);
+      return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
     }
 
     @Override
@@ -131,13 +136,18 @@ public final class BareAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull Method getMethod() {
+    public @NonNull Method getMember() {
       return this.method;
     }
 
     @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
+    }
+
+    @Override
     public @NonNull <V> Result<V> invoke() {
-      return this.invoke(this.reflexion.getBinding());
+      return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
     @Override
@@ -147,28 +157,35 @@ public final class BareAccessorFactory implements AccessorFactory {
     }
 
     @Override
-    public @NonNull <V> Result<V> invoke(@NotNull @NonNull Object... args) {
+    public @NonNull <V> Result<V> invoke(@NonNull Object... args) {
       return this.invoke(this.reflexion.getBinding(), args);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NotNull @NonNull Object... args) {
+    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
       return Result.tryExecute(() -> (V) this.method.invoke(instance, args));
     }
   }
 
   private static final class BareConstructorAccessor implements MethodAccessor<Constructor<?>> {
 
+    private final Reflexion reflexion;
     private final Constructor<?> constructor;
 
-    public BareConstructorAccessor(Constructor<?> constructor) {
+    public BareConstructorAccessor(Reflexion reflexion, Constructor<?> constructor) {
+      this.reflexion = reflexion;
       this.constructor = constructor;
     }
 
     @Override
-    public @NonNull Constructor<?> getMethod() {
+    public @NonNull Constructor<?> getMember() {
       return this.constructor;
+    }
+
+    @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
     }
 
     @Override
@@ -184,12 +201,12 @@ public final class BareAccessorFactory implements AccessorFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull <V> Result<V> invoke(@NotNull @NonNull Object... args) {
+    public @NonNull <V> Result<V> invoke(@NonNull Object... args) {
       return Result.tryExecute(() -> (V) this.constructor.newInstance(args));
     }
 
     @Override
-    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NotNull @NonNull Object... args) {
+    public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
       return this.invoke(args);
     }
   }

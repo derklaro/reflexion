@@ -25,6 +25,7 @@
 package dev.derklaro.reflexion.internal.natives;
 
 final class FNativeReflect {
+  // CHECKSTYLE.OFF: Must match native naming
 
   // read field access
   public static native Object GetObjectFieldValue(String owner, String name, String sig, Object on);
@@ -63,4 +64,5 @@ final class FNativeReflect {
   public static native void SetFFieldValue(String owner, String name, Object on, float val);
 
   public static native void SetDFieldValue(String owner, String name, Object on, double val);
+  // CHECKSTYLE.ON
 }

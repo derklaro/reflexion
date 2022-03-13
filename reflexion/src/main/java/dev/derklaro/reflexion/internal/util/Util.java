@@ -24,6 +24,7 @@
 
 package dev.derklaro.reflexion.internal.util;
 
+import dev.derklaro.reflexion.ReflexionException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public final class Util {
 
     // check if the given array has a size which is dividable by 2 (key - value pairs)
     if (fastModulo(entries.length, 2) != 0) {
-      throw new IllegalArgumentException("Given map based array has unexpected size of " + entries.length);
+      throw new ReflexionException("Given map based array has unexpected size of " + entries.length);
     }
 
     // fixed size map which prevents resizing
@@ -74,16 +75,7 @@ public final class Util {
     return leftOperator & (rightOperator - 1);
   }
 
-  public static @NonNull <T> T getFirstNonNull(T... choices) {
-    T firstNonNull = firstNonNull(choices);
-    if (firstNonNull != null) {
-      return firstNonNull;
-    }
-
-    // okay
-    throw new IllegalArgumentException("none of the given choices is non-null");
-  }
-
+  @SafeVarargs
   public static @UnknownNullability <T> T firstNonNull(T... choices) {
     // why would you do that
     if (choices.length == 0) {

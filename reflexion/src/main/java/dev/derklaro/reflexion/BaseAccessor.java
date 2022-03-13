@@ -22,37 +22,30 @@
  * THE SOFTWARE.
  */
 
-package dev.derklaro.reflexion.matcher;
+package dev.derklaro.reflexion;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import lombok.NonNull;
 
 /**
- * A matcher for constructors.
+ * Represents the base for all accessors created by this library. Each accessor is bound to the reflexion object which
+ * created it and holds a reference to the java.lang.reflect member which it wraps.
  *
- * @since 1.0
+ * @param <T> the member which is wrapped by the accessor.
  */
-public final class ConstructorMatcher extends BaseMatcher<Constructor<?>, ConstructorMatcher> {
-
-  private ConstructorMatcher() {
-  }
+public interface BaseAccessor<T extends Member> {
 
   /**
-   * Constructs a new constructor matcher instance.
+   * Get the java.lang.reflect member which is wrapped by this accessor.
    *
-   * @return a new constructor matcher.
+   * @return the wrapped member.
    */
-  public static @NonNull ConstructorMatcher newMatcher() {
-    return new ConstructorMatcher();
-  }
+  @NonNull T getMember();
 
   /**
-   * Checks if the constructor has the given amount of parameters.
+   * Get the reflexion instance which created this accessor instance.
    *
-   * @param count the expected amount of parameters.
-   * @return the same instance as used to call the method, for chaining.
+   * @return the reflexion instance which created this instance.
    */
-  public @NonNull ConstructorMatcher parameterCount(int count) {
-    return this.and(member -> member.getParameterCount() == count);
-  }
+  @NonNull Reflexion getReflexion();
 }

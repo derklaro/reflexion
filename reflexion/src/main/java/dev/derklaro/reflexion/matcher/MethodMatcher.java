@@ -27,15 +27,31 @@ package dev.derklaro.reflexion.matcher;
 import java.lang.reflect.Method;
 import lombok.NonNull;
 
+/**
+ * A matcher for methods.
+ *
+ * @since 1.0
+ */
 public final class MethodMatcher extends BaseMatcher<Method, MethodMatcher> {
 
   private MethodMatcher() {
   }
 
+  /**
+   * Constructs a new method matcher instance.
+   *
+   * @return a new method matcher.
+   */
   public static @NonNull MethodMatcher newMatcher() {
     return new MethodMatcher();
   }
 
+  /**
+   * Checks if the method has the given amount of parameters.
+   *
+   * @param count the expected amount of parameters.
+   * @return the same instance as used to call the method, for chaining.
+   */
   public @NonNull MethodMatcher parameterCount(int count) {
     return this.and(member -> member.getParameterCount() == count);
   }

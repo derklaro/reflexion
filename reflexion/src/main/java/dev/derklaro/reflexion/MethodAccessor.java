@@ -28,15 +28,60 @@ import java.lang.reflect.Executable;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface MethodAccessor<T extends Executable> {
+/**
+ * An accessor which wraps a java.lang.reflect Method and makes it much easier to invoke it.
+ *
+ * @param <T> the type of the underlying executable, either a method or constructor.
+ * @since 1.0
+ */
+public interface MethodAccessor<T extends Executable> extends BaseAccessor<T> {
 
-  @NonNull T getMethod();
-
+  /**
+   * Invokes the underlying method using the instance the reflexion object used to create this accessor is bound to (if
+   * the method is not static). This method never throws an exception all exceptions are given back to the caller in the
+   * returned result instance.
+   * <p>
+   * This method invokes the wrapped method without any arguments.
+   *
+   * @param <V> the type of values returned by the wrapped method.
+   * @return the result instance of the invocation, either holding the result of the method or any exception thrown.
+   */
   @NonNull <V> Result<V> invoke();
 
+  /**
+   * Invokes the underlying method using the given instance. This method never throws an exception all exceptions are
+   * given back to the caller in the returned result instance.
+   * <p>
+   * This method invokes the wrapped method without any arguments. The given instance should be null when invoking a
+   * static method.
+   *
+   * @param instance the instance to invoke the wrapped method on.
+   * @param <V>      the type of values returned by the wrapped method.
+   * @return the result instance of the invocation, either holding the result of the method or any exception thrown.
+   */
   @NonNull <V> Result<V> invoke(@Nullable Object instance);
 
+  /**
+   * Invokes the underlying method using the instance the reflexion object used to create this accessor is bound to (if
+   * the method is not static). This method never throws an exception all exceptions are given back to the caller in the
+   * returned result instance.
+   *
+   * @param args the arguments to use on when invoking the wrapped method.
+   * @param <V>  the type of values returned by the wrapped method.
+   * @return the result instance of the invocation, either holding the result of the method or any exception thrown.
+   */
   @NonNull <V> Result<V> invoke(@NonNull Object... args);
 
+  /**
+   * Invokes the underlying method using the given instance. This method never throws an exception all exceptions are
+   * given back to the caller in the returned result instance.
+   * <p>
+   * The given instance should be null when invoking a static method.
+   *
+   * @param instance the instance to invoke the wrapped method on.
+   * @param args     the arguments to use on when invoking the wrapped method.
+   * @param <V>      the type of values returned by the wrapped method.
+   * @return the result instance of the invocation, either holding the result of the method or any exception thrown.
+   */
   @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args);
 }

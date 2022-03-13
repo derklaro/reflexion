@@ -23,7 +23,8 @@
  */
 
 plugins {
-  id("java-library")
+  id("checkstyle")
+  id("org.cadixdev.licenser") version "0.6.1"
 }
 
 repositories {
@@ -37,7 +38,8 @@ dependencies {
   annotationProcessor("org.projectlombok", "lombok", lombokVersion)
 
   // other libs
-  compileOnly("org.jetbrains:annotations:23.0.0")
+  val annotationsVersion = "23.0.0"
+  compileOnly("org.jetbrains", "annotations", annotationsVersion)
 
   // testing
   val junitVersion = "5.8.2"
@@ -51,4 +53,35 @@ tasks.withType<JavaCompile> {
   // options
   options.encoding = "UTF-8"
   options.isIncremental = true
+}
+
+tasks.withType<Test> {
+  useJUnitPlatform()
+  testLogging {
+    events("started", "passed", "skipped", "failed")
+  }
+}
+
+tasks.withType<Checkstyle> {
+  maxErrors = 0
+  maxWarnings = 0
+  configFile = rootProject.file("checkstyle.xml")
+}
+
+tasks.withType<Javadoc> {
+  val options = options as? StandardJavadocDocletOptions ?: return@withType
+
+  // options
+  options.encoding = "UTF-8"
+  options.memberLevel = JavadocMemberLevel.PRIVATE
+  options.addStringOption("-html5")
+}
+
+extensions.configure<CheckstyleExtension> {
+  toolVersion = "10.0"
+}
+
+extensions.configure<org.cadixdev.gradle.licenser.LicenseExtension> {
+  include("**/*.java")
+  header(rootProject.file("license_header.txt"))
 }

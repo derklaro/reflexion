@@ -27,11 +27,21 @@ package dev.derklaro.reflexion.matcher;
 import java.lang.reflect.Field;
 import lombok.NonNull;
 
+/**
+ * A matcher for fields.
+ *
+ * @since 1.0
+ */
 public final class FieldMatcher extends BaseMatcher<Field, FieldMatcher> {
 
   private FieldMatcher() {
   }
 
+  /**
+   * Constructs a new field matcher instance.
+   *
+   * @return a new field matcher instance.
+   */
   public static @NonNull FieldMatcher newMatcher() {
     return new FieldMatcher();
   }

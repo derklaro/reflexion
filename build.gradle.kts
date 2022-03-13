@@ -22,7 +22,112 @@
  * THE SOFTWARE.
  */
 
+plugins {
+  id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+}
+
 allprojects {
-  group = "dev.derklaro"
+  group = "dev.derklaro.reflexion"
   version = "1.0-SNAPSHOT"
+}
+
+subprojects {
+  apply(plugin = "signing")
+  apply(plugin = "java-library")
+  apply(plugin = "maven-publish")
+
+  tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from(tasks.getByName("javadoc"))
+  }
+
+  tasks.register<org.gradle.jvm.tasks.Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(project.the<SourceSetContainer>()["main"].allJava)
+  }
+
+  extensions.configure<PublishingExtension> {
+    publications.apply {
+      create("maven", MavenPublication::class.java).apply {
+        from(components.getByName("java"))
+
+        artifact(tasks.getByName("sourcesJar"))
+        artifact(tasks.getByName("javadocJar"))
+
+        pom.apply {
+          name.set(project.name)
+          description.set(project.description)
+          url.set("https://github.com/derklaro/reflexion")
+
+          developers {
+            developer {
+              id.set("derklaro")
+              email.set("git@derklaro.dev")
+              timezone.set("Europe/Berlin")
+            }
+          }
+
+          licenses {
+            license {
+              name.set("MIT")
+              url.set("https://opensource.org/licenses/MIT")
+            }
+          }
+
+          scm {
+            tag.set("HEAD")
+            url.set("git@github.com:derklaro/reflexion.git")
+            connection.set("scm:git:git@github.com:derklaro/reflexion.git")
+            developerConnection.set("scm:git:git@github.com:derklaro/reflexion.git")
+          }
+
+          issueManagement {
+            system.set("GitHub Issues")
+            url.set("https://github.com/derklaro/reflexion/issues")
+          }
+
+          ciManagement {
+            system.set("GitHub Actions")
+            url.set("https://github.com/derklaro/reflexion/actions")
+          }
+
+          withXml {
+            val repositories = asNode().appendNode("repositories")
+            project.repositories.forEach {
+              if (it is MavenArtifactRepository && it.url.toString().startsWith("https://")) {
+                val repo = repositories.appendNode("repository")
+                repo.appendNode("id", it.name)
+                repo.appendNode("url", it.url.toString())
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  extensions.configure<SigningExtension> {
+    useGpgCmd()
+    sign(extensions.getByType(PublishingExtension::class.java).publications.getByName("maven"))
+  }
+
+  tasks.withType<Sign> {
+    onlyIf {
+      !rootProject.version.toString().endsWith("-SNAPSHOT")
+    }
+  }
+}
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+      username.set(project.findProperty("ossrhUsername") as? String ?: "")
+      password.set(project.findProperty("ossrhPassword") as? String ?: "")
+    }
+  }
+
+  useStaging.set(!project.version.toString().endsWith("-SNAPSHOT"))
 }

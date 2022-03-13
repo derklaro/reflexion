@@ -34,6 +34,11 @@ import java.util.List;
 import java.util.ServiceLoader;
 import lombok.NonNull;
 
+/**
+ * Internal: loads the best accessor factory for the current environment of the jvm.
+ *
+ * @since 1.0
+ */
 public final class AccessorFactoryLoader {
 
   private static final AccessorFactory[] DEFAULT_FACTORIES = new AccessorFactory[]{
@@ -44,6 +49,14 @@ public final class AccessorFactoryLoader {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Loads the best factory for the current environment, also making use of the service loader to allow other libraries
+   * to opt in and offer their own implementation of an accessor factory. The factories are sorted based on their
+   * implementation of comparable and the best matching one will be used in the environment.
+   *
+   * @return the best accessor factory for the current jvm environment.
+   * @throws IllegalStateException if no accessor factories are available.
+   */
   public static @NonNull AccessorFactory doLoadFactory() {
     // load all other factories, maybe brought in by external libs
     ClassLoader cl = AccessorFactoryLoader.class.getClassLoader();

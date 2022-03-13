@@ -22,3 +22,39 @@
  * THE SOFTWARE.
  */
 
+tasks.register("buildNative", Exec::class) {
+  commandLine = listOf("cargo", "build", "--release")
+  doLast {
+    val fileNames = getNativeLibFiles()
+    copy {
+      from("target/release/${fileNames.second}")
+      into("../reflexion/src/main/resources/reflexion-native/${fileNames.first}")
+    }
+  }
+}
+
+fun getNativeLibFiles(): Pair<String, String> {
+  // normalize the os name
+  val osName: String = System.getProperty("os.name").toLowerCase()
+  val nameFormat: Pair<String, String> = if (osName.startsWith("linux") || osName == "netbsd") {
+    Pair("reflexion-linux_%s", "libreflexion.so")
+  } else if (osName.startsWith("windows")) {
+    Pair("reflexion-windows_%s", "reflexion.dll")
+  } else if (osName.startsWith("mac")) {
+    Pair("reflexion-mac_%s", "libreflexion.dylib")
+  } else {
+    throw IllegalStateException("Unsupported operating system, cannot copy lib")
+  }
+
+  // normalize the cpu arch
+  val arch: String = System.getProperty("os.arch").toLowerCase()
+  return if (arch == "amd64" || arch == "x86_64") {
+    nameFormat.copy(nameFormat.first.format("x86_64"))
+  } else if (arch.startsWith("arm")) {
+    nameFormat.copy(nameFormat.first.format("arm"))
+  } else if (arch == "aarch64") {
+    nameFormat.copy(nameFormat.first.format("aarch64"))
+  } else {
+    throw IllegalStateException("Unsupported system arch, cannot copy lib")
+  }
+}

@@ -28,15 +28,54 @@ import java.lang.reflect.Field;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface FieldAccessor {
+/**
+ * An accessor which wraps a java.lang.reflect Field and makes it much easier to read/write from/to it.
+ *
+ * @since 1.0
+ */
+public interface FieldAccessor extends BaseAccessor<Field> {
 
-  @NonNull Field getField();
-
+  /**
+   * Gets the value of the wrapped field using the instance the reflexion object which created this instance is bound to
+   * (but only if the field is not static). This method never throws an exception, all exceptions are given back to the
+   * caller in the returned result instance.
+   *
+   * @param <T> the type of the data returned from the field.
+   * @return the result of the get operation, either holding the field value or a read exception.
+   */
   @NonNull <T> Result<T> getValue();
 
+  /**
+   * Gets the value of the wrapped field using the given instance. This method never throws an exception, all exceptions
+   * are given back to the caller in the returned result instance.
+   * <p>
+   * The given instance should be present in case the field is not static, null otherwise.
+   *
+   * @param instance the instance to use when getting the field value.
+   * @param <T>      the type of the data returned from the field.
+   * @return the result of the get operation, either holding the field value or a read exception.
+   */
   @NonNull <T> Result<T> getValue(@Nullable Object instance);
 
+  /**
+   * Sets the value of the wrapped field using the instance the reflexion object which created this instance is bound to
+   * (but only if the field is not static). This method never throws an exception, all exceptions are given back to the
+   * caller in the returned result instance.
+   *
+   * @param value the new value of the field.
+   * @return the result of the set operation, either successful or holding the set exception.
+   */
   @NonNull Result<Void> setValue(@Nullable Object value);
 
+  /**
+   * Sets the value of the wrapped field in the given object instance. This method never throws an exception, all
+   * exceptions are given back to the caller in the returned result instance.
+   * <p>
+   * The given instance should be present in case the field is not static, null otherwise.
+   *
+   * @param instance the instance of the object to set the new field value in.
+   * @param value    the new value of the field to set.
+   * @return the result of the set operation, either successful or holding the set exception.
+   */
   @NonNull Result<Void> setValue(@Nullable Object instance, @Nullable Object value);
 }

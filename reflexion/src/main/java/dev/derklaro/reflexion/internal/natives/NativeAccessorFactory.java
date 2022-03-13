@@ -26,6 +26,7 @@ package dev.derklaro.reflexion.internal.natives;
 
 import dev.derklaro.reflexion.FieldAccessor;
 import dev.derklaro.reflexion.Reflexion;
+import dev.derklaro.reflexion.ReflexionException;
 import dev.derklaro.reflexion.Result;
 import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
 import dev.derklaro.reflexion.internal.util.Type;
@@ -107,18 +108,23 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
     }
 
     @Override
-    public @NonNull Field getField() {
+    public @NonNull Field getMember() {
       return this.field;
     }
 
     @Override
+    public @NonNull Reflexion getReflexion() {
+      return this.reflexion;
+    }
+
+    @Override
     public @NonNull <T> Result<T> getValue() {
-      return this.getValue(this.reflexion.getBinding());
+      return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
-      return this.setValue(this.reflexion.getBinding(), value);
+      return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
     }
 
     @Override
@@ -127,7 +133,7 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
       return Result.tryExecute(() -> {
         // that's not a thing...
         if (instance == null && !Modifier.isStatic(this.field.getModifiers())) {
-          throw new IllegalArgumentException("Requires an instance to be given to call non-static field!");
+          throw new ReflexionException("Requires an instance to be given to call non-static field!");
         }
 
         // primitive types
@@ -154,14 +160,14 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
       return Result.tryExecute(() -> {
         // that's not a thing...
         if (instance == null && !Modifier.isStatic(this.field.getModifiers())) {
-          throw new IllegalArgumentException("Requires an instance to be given to call non-static field!");
+          throw new ReflexionException("Requires an instance to be given to call non-static field!");
         }
 
         // primitive types
         if (this.field.getType().isPrimitive()) {
           if (value == null) {
             // that is not a thing
-            throw new IllegalArgumentException("Cannot set primitive field to null");
+            throw new ReflexionException("Cannot set primitive field to null");
           }
 
           // can never be null
@@ -177,7 +183,7 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
 
         // ensure that we're not going to assign invalid values
         if (value != null && !this.field.getType().isAssignableFrom(value.getClass())) {
-          throw new IllegalArgumentException("Unable to assign " + value + " to field of type " + this.field.getType());
+          throw new ReflexionException("Unable to assign " + value + " to field of type " + this.field.getType());
         }
 
         // set the field value
