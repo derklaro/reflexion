@@ -24,6 +24,7 @@
 
 plugins {
   id("checkstyle")
+  id("me.champeau.jmh") version "0.6.6"
   id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -46,6 +47,11 @@ dependencies {
   testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
   testImplementation("org.junit.jupiter", "junit-jupiter-params", junitVersion)
   testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
+
+  // jmh
+  val jmhVersion = "1.34"
+  jmh("org.openjdk.jmh", "jmh-core", jmhVersion)
+  jmh("org.openjdk.jmh", "jmh-generator-annprocess", jmhVersion)
 }
 
 tasks.withType<JavaCompile> {
