@@ -23,7 +23,7 @@
  */
 
 tasks.register("buildNative", Exec::class) {
-  commandLine = listOf("cargo", "build", "--release")
+  commandLine = listOf("cargo", "build", "--release", "--no-default-features")
   doLast {
     val fileNames = getNativeLibFiles()
     copy {

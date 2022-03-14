@@ -60,8 +60,10 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull FieldAccessor wrapField(@NonNull Reflexion reflexion, @NonNull Field field) {
     try {
-      MethodHandle getter = this.getLookup().unreflectGetter(field);
-      MethodHandle setter = this.getLookup().unreflectSetter(field);
+      boolean staticField = Modifier.isStatic(field.getModifiers());
+
+      MethodHandle getter = this.convertFieldToGeneric(field, staticField, false);
+      MethodHandle setter = this.convertFieldToGeneric(field, staticField, true);
 
       return new MethodHandleFieldAccessor(field, reflexion, getter, setter);
     } catch (Exception exception) {
@@ -98,11 +100,11 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     return this.trustedLookup == null ? MethodHandles.lookup() : this.trustedLookup;
   }
 
-  private @NonNull MethodHandle convertToGeneric(@NonNull MethodHandle handle, boolean staticMethod, boolean ctx) {
+  private @NonNull MethodHandle convertToGeneric(@NonNull MethodHandle handle, boolean staticMethod, boolean ctor) {
     MethodHandle target = handle.asFixedArity();
     // special thing - we do not need the trailing array if we have 0 arguments anyway
-    int paramCount = handle.type().parameterCount() - (ctx || staticMethod ? 0 : 1);
-    MethodType methodType = MethodType.genericMethodType(ctx ? 0 : 1, paramCount > 0);
+    int paramCount = handle.type().parameterCount() - (ctor || staticMethod ? 0 : 1);
+    MethodType methodType = MethodType.genericMethodType(ctor ? 0 : 1, paramCount > 0);
     if (paramCount > 0) {
       // spread the arguments we give into the handle only if we're not targeting a no-args method
       target = target.asSpreader(Object[].class, paramCount);
@@ -113,6 +115,36 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
     // convert the type to finish
     return target.asType(methodType);
+  }
+
+  private @NonNull MethodHandle convertFieldToGeneric(
+    @NonNull Field field,
+    boolean staticField,
+    boolean set
+  ) throws Exception {
+    // we need to do this as unreflecting the field will cause java to throw exceptions when we access trusted final fields
+    MethodHandle handle;
+    if (staticField) {
+      handle = set
+        ? this.getLookup().findStaticSetter(field.getDeclaringClass(), field.getName(), field.getType())
+        : this.getLookup().findStaticGetter(field.getDeclaringClass(), field.getName(), field.getType());
+    } else {
+      handle = set
+        ? this.getLookup().findSetter(field.getDeclaringClass(), field.getName(), field.getType())
+        : this.getLookup().findGetter(field.getDeclaringClass(), field.getName(), field.getType());
+    }
+
+    // generify the method type so that we don't need to worry about it when using the handles
+    MethodType mt;
+    if (staticField) {
+      mt = set ? MethodType.methodType(void.class, Object.class) : MethodType.methodType(Object.class);
+    } else {
+      mt = set
+        ? MethodType.methodType(void.class, Object.class, Object.class)
+        : MethodType.methodType(Object.class, Object.class);
+    }
+
+    return handle.asType(mt);
   }
 
   @Override
@@ -169,7 +201,15 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <T> Result<T> getValue(@Nullable Object instance) {
-      return Result.tryExecute(() -> (T) this.getter.invoke(instance));
+      return Result.tryExecute(() -> {
+        if (Modifier.isStatic(this.field.getModifiers())) {
+          // no need for the instance, ignore it
+          return (T) this.getter.invoke();
+        } else {
+          // we need to give the instance
+          return (T) this.getter.invoke(instance);
+        }
+      });
     }
 
     @Override
@@ -180,7 +220,13 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object instance, @Nullable Object value) {
       return Result.tryExecute(() -> {
-        this.setter.invoke(instance, value);
+        if (Modifier.isStatic(this.field.getModifiers())) {
+          // no need for the instance, ignore it
+          this.setter.invoke(value);
+        } else {
+          // we need to give the instance
+          this.setter.invoke(instance, value);
+        }
         return null;
       });
     }
