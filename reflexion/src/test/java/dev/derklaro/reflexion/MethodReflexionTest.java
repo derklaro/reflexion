@@ -24,12 +24,34 @@
 
 package dev.derklaro.reflexion;
 
+import static dev.derklaro.reflexion.matcher.MethodMatcher.newMatcher;
+
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MethodReflexionTest {
+
+  @Test
+  void testMethodMatcher() {
+    Assertions.assertEquals(26, Reflexion.on(SeedClass.class).findMethods(newMatcher()).size());
+    Assertions.assertEquals(19, Reflexion.on(SeedSuperClass.class).findMethods(newMatcher()).size());
+
+    Assertions.assertEquals(8, Reflexion.on(SeedClass.class).findMethods(newMatcher()
+      .exactType(Method::getDeclaringClass, SeedSuperClass.class)
+    ).size());
+    Assertions.assertEquals(4, Reflexion.on(SeedClass.class).findMethods(newMatcher()
+      .denyModifier(Modifier.PRIVATE)
+      .exactType(Method::getDeclaringClass, SeedSuperClass.class)
+    ).size());
+    Assertions.assertEquals(1, Reflexion.on(SeedClass.class).findMethods(newMatcher()
+      .hasModifier(Modifier.STATIC)
+      .denyModifier(Modifier.PRIVATE)
+      .exactType(Method::getDeclaringClass, SeedClass.class)
+    ).size());
+  }
 
   @Test
   void testFindNoArgsStaticMethod() {

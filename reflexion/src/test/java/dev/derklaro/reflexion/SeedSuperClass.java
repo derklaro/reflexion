@@ -24,60 +24,52 @@
 
 package dev.derklaro.reflexion;
 
-final class SeedClass extends SeedSuperClass {
+class SeedSuperClass {
 
-  private static final String WORLD = "World";
-  private static final long LONG = 123456789L;
+  private String a;
+  private String b;
+  private int c;
+  private double e;
 
-  private final int i;
-  private final double d;
-  private final boolean b;
-  private final String str;
-
-  private SeedClass() {
-    this(234D, "");
+  public SeedSuperClass() {
   }
 
-  private SeedClass(double d, String str) {
-    this(123, d, true, str);
+  private SeedSuperClass(int fed, String def, String abc, double lol) {
+    this.a = abc;
+    this.b = def;
+    this.c = fed;
+    this.e = lol;
   }
 
-  public SeedClass(int i, double d, boolean b, String str) {
-    this(i, d, b, str, "");
+  public String getA() {
+    return a;
   }
 
-  public SeedClass(int i, double d, boolean b, String str, String s) {
-    this.i = i;
-    this.d = d;
+  private void setA(String a) {
+    this.a = a;
+  }
+
+  public String getB() {
+    return b;
+  }
+
+  private void setB(String b) {
     this.b = b;
-    this.str = str;
   }
 
-  public static String abc() {
-    return "World";
+  public int getC() {
+    return c;
   }
 
-  private static String abc(String a, SeedClass b) {
-    return a + " // " + b.getStr();
+  private void setC(int c) {
+    this.c = c;
   }
 
-  public int getI() {
-    return this.i;
+  public double getE() {
+    return e;
   }
 
-  public double getD() {
-    return this.d;
-  }
-
-  public boolean isB() {
-    return this.b;
-  }
-
-  public String getStr() {
-    return this.str;
-  }
-
-  public String appendToStr(String other) {
-    return this.str + " " + other;
+  private void setE(double d) {
+    this.e = d;
   }
 }

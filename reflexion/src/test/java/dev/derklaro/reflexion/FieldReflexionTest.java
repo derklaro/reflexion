@@ -30,16 +30,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@TestMethodOrder(OrderAnnotation.class)
-class ReflexionFieldTest {
+class FieldReflexionTest {
 
   static Stream<Arguments> fieldNameAccessProvider() {
     return Stream.of(
@@ -71,7 +67,7 @@ class ReflexionFieldTest {
 
   @Test
   void testFieldsLookup() {
-    Assertions.assertEquals(6, Reflexion.on(SeedClass.class).findFields(newMatcher()).size());
+    Assertions.assertEquals(10, Reflexion.on(SeedClass.class).findFields(newMatcher()).size());
   }
 
   @Test
@@ -89,10 +85,10 @@ class ReflexionFieldTest {
     Assertions.assertEquals(0, reflexion.findFields(newMatcher().exactType(Field::getType, float.class)).size());
     Assertions.assertEquals(0, reflexion.findFields(newMatcher().exactType(Field::getType, Object.class)).size());
 
-    Assertions.assertEquals(1, reflexion.findFields(newMatcher().exactType(Field::getType, int.class)).size());
-    Assertions.assertEquals(2, reflexion.findFields(newMatcher().exactType(Field::getType, String.class)).size());
+    Assertions.assertEquals(2, reflexion.findFields(newMatcher().exactType(Field::getType, int.class)).size());
+    Assertions.assertEquals(4, reflexion.findFields(newMatcher().exactType(Field::getType, String.class)).size());
 
-    Assertions.assertEquals(2, reflexion.findFields(newMatcher().exactType(Field::getType, int.class)
+    Assertions.assertEquals(4, reflexion.findFields(newMatcher().exactType(Field::getType, int.class)
       .or(newMatcher().exactType(Field::getType, double.class))).size());
 
     Assertions.assertEquals(2, reflexion.findFields(newMatcher().hasModifier(Modifier.STATIC)).size());
@@ -128,7 +124,6 @@ class ReflexionFieldTest {
     Assertions.assertEquals(newVal, accessor.getValue().getOrElse(null));
   }
 
-  @Order(0)
   @ParameterizedTest
   @MethodSource("fieldStaticNameAccessProvider")
   void testStaticFieldNameAccess(Class<?> clazz, String name, Object expected) {
@@ -137,7 +132,6 @@ class ReflexionFieldTest {
     Assertions.assertEquals(expected, value);
   }
 
-  @Order(10)
   @ParameterizedTest
   @MethodSource("fieldStaticNameAccessSetProvider")
   void testStaticFieldNameSetAccessInstance(Class<?> clazz, String name, Object initial, Object newVal) {
@@ -149,5 +143,8 @@ class ReflexionFieldTest {
 
     accessor.setValue(newVal);
     Assertions.assertEquals(newVal, accessor.getValue().getOrElse(null));
+
+    // reset the field
+    accessor.setValue(initial);
   }
 }

@@ -24,12 +24,37 @@
 
 package dev.derklaro.reflexion;
 
+import static dev.derklaro.reflexion.matcher.ConstructorMatcher.newMatcher;
+
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ConstructorReflexionTest {
+
+  @Test
+  void testConstructorLookup() {
+    Assertions.assertEquals(7, Reflexion.on(SeedClass.class).findConstructors(newMatcher()).size());
+  }
+
+  @Test
+  void testConstructorLookupMatcher() {
+    Reflexion reflexion = Reflexion.on(SeedClass.class);
+
+    Assertions.assertEquals(3, reflexion.findConstructors(newMatcher().hasModifier(Modifier.PRIVATE)).size());
+    Assertions.assertEquals(0, reflexion.findConstructors(newMatcher()
+      .exactTypeAt(Constructor::getParameterTypes, String.class, 0)
+    ).size());
+    Assertions.assertEquals(3, reflexion.findConstructors(newMatcher()
+      .exactTypeAt(Constructor::getParameterTypes, int.class, 0)
+    ).size());
+    Assertions.assertEquals(1, reflexion.findConstructors(newMatcher()
+      .hasModifier(Modifier.PRIVATE)
+      .exactTypeAt(Constructor::getParameterTypes, int.class, 0)
+    ).size());
+  }
 
   @Test
   void testNoArgsConstructorLookup() {
