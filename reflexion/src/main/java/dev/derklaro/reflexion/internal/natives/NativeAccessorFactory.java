@@ -38,6 +38,12 @@ import java.util.Map;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A factory which produces accessors for fields based on native code. Method and constructor accessors are based on
+ * trusted method handles.
+ *
+ * @since 1.0
+ */
 public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
 
   private static final boolean NATIVE_LOADED = NativeLibLoader.tryLoadNative();
@@ -62,16 +68,25 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
     float.class, (NativeFieldSetter) (o, n, i, val) -> FNativeReflect.SetFFieldValue(o, n, i, (float) val),
     double.class, (NativeFieldSetter) (o, n, i, val) -> FNativeReflect.SetDFieldValue(o, n, i, (double) val));
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isAvailable() {
     return NATIVE_LOADED;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull FieldAccessor wrapField(@NonNull Reflexion reflexion, @NonNull Field field) {
     return new NativeFieldAccessor(field, reflexion);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @Nullable Lookup getTrustedLookup() {
     try {
@@ -85,48 +100,102 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
     }
   }
 
+  /**
+   * A functional interface which can be used to get the value of a field.
+   *
+   * @param <T> the type returned by the accessor.
+   * @since 1.0
+   */
   @FunctionalInterface
   private interface NativeFieldGetter<T> {
 
+    /**
+     * Get the value of a field.
+     *
+     * @param declaringClass the name of the class which is declaring the field.
+     * @param name           the name of the field to get.
+     * @param instance       the instance to get the field on.
+     * @return the value of the field.
+     */
     T getFieldValue(String declaringClass, String name, Object instance);
   }
 
+  /**
+   * A functional interface which can be used to set the value of a field.
+   *
+   * @since 1.0
+   */
   @FunctionalInterface
   private interface NativeFieldSetter {
 
+    /**
+     * Sets the value of a field.
+     *
+     * @param declaringClass the name of the class which is declaring the field.
+     * @param name           the name of the field to set.
+     * @param instance       the instance to set the field in.
+     * @param val            the new value of the field.
+     */
     void setFieldValue(String declaringClass, String name, Object instance, Object val);
   }
 
+  /**
+   * Represents an accessor for a field which uses native code to get/set the value of a field.
+   *
+   * @since 1.0
+   */
   private static final class NativeFieldAccessor implements FieldAccessor {
 
     private final Field field;
     private final Reflexion reflexion;
 
+    /**
+     * Constructs a new native field accessor instance.
+     *
+     * @param field     the field targeted by this accessor.
+     * @param reflexion the reflexion instance which produced the lookup call.
+     * @throws NullPointerException if the given field or reflexion instance is null.
+     */
     public NativeFieldAccessor(@NonNull Field field, @NonNull Reflexion reflexion) {
       this.field = field;
       this.reflexion = reflexion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Field getMember() {
       return this.field;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Reflexion getReflexion() {
       return this.reflexion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull <T> Result<T> getValue() {
       return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
       return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <T> Result<T> getValue(@Nullable Object instance) {
@@ -155,6 +224,9 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
       });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object instance, @Nullable Object value) {
       return Result.tryExecute(() -> {

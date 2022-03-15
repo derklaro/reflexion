@@ -24,10 +24,14 @@
 
 package dev.derklaro.reflexion.internal.natives;
 
+/**
+ * The bridge to the native library bundled in this library to access/set field values using native code.
+ *
+ * @since 1.0
+ */
 final class FNativeReflect {
-  // CHECKSTYLE.OFF: Must match native naming
 
-  // read field access
+  // CHECKSTYLE.OFF: Must match native naming
   public static native Object GetObjectFieldValue(String owner, String name, String sig, Object on);
 
   public static native boolean GetZFieldValue(String owner, String name, Object on);
@@ -46,7 +50,6 @@ final class FNativeReflect {
 
   public static native double GetDFieldValue(String owner, String name, Object on);
 
-  // field write access
   public static native void SetObjectFieldValue(String owner, String name, String sig, Object on, Object val);
 
   public static native void SetZFieldValue(String owner, String name, Object on, boolean val);

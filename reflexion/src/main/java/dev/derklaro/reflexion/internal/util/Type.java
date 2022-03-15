@@ -28,6 +28,11 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import lombok.NonNull;
 
+/**
+ * A utility class for creating fully qualified signatures from java.util.reflect types.
+ *
+ * @since 1.0
+ */
 public final class Type {
 
   private static final Map<Class<?>, String> PRIMITIVE_TYPES = Util.newMapFromArray(
@@ -44,14 +49,35 @@ public final class Type {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Get the fully qualified name of the given class.
+   *
+   * @param clazz the class to get the name of.
+   * @return the fully qualified name of the given class.
+   * @throws NullPointerException if the given class is null.
+   */
   public static @NonNull String getQualifiedName(@NonNull Class<?> clazz) {
     return clazz.getName().replace('.', '/');
   }
 
+  /**
+   * Get the fully qualified signature of the given field.
+   *
+   * @param field the field to get the signature of.
+   * @return the signature of the given field.
+   * @throws NullPointerException if the given field is null.
+   */
   public static @NonNull String getFieldSignature(@NonNull Field field) {
     return getSignature(field.getType());
   }
 
+  /**
+   * Get the fully qualified type signature of the given class.
+   *
+   * @param clazz the class to get the signature of.
+   * @return the fully qualified signature of the given class.
+   * @throws NullPointerException if the given class is null.
+   */
   public static @NonNull String getSignature(@NonNull Class<?> clazz) {
     if (clazz.isPrimitive()) {
       return PRIMITIVE_TYPES.get(clazz);

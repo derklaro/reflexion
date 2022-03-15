@@ -32,6 +32,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import lombok.NonNull;
 
+/**
+ * The loader for the native library bundled with this library.
+ *
+ * @since 1.0
+ */
 final class NativeLibLoader {
 
   private static final Os UNSUPPORTED_OS = new Os("unsupported", "", "");
@@ -70,6 +75,11 @@ final class NativeLibLoader {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Tries to load the native library which is bundled with reflexion.
+   *
+   * @return true if the library was loaded successfully, false otherwise.
+   */
   public static boolean tryLoadNative() {
     // check if we can load a native lib
     if (OS == UNSUPPORTED_OS || OS_ARCH.equals("unsupported")) {
@@ -114,12 +124,25 @@ final class NativeLibLoader {
     }
   }
 
+  /**
+   * Represents information about an operating system.
+   *
+   * @since 1.0
+   */
   private static final class Os {
 
     private final String name;
     private final String libPrefix;
     private final String libExtension;
 
+    /**
+     * Constructs a new operating system info.
+     *
+     * @param name         the name of the operating system.
+     * @param libPrefix    the prefix of native libraries on the operating system.
+     * @param libExtension the extension of native libraries on the operating system.
+     * @throws NullPointerException if the given name, lib prefix or suffix is null.
+     */
     public Os(@NonNull String name, @NonNull String libPrefix, @NonNull String libExtension) {
       this.name = name;
       this.libPrefix = libPrefix;

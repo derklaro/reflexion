@@ -39,12 +39,28 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * A collection of general purpose utility methods used within the library.
+ *
+ * @since 1.0
+ */
 public final class Util {
 
   private Util() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Constructs a new map from the given object array taking care of edge cases to ensure a small memory footprint if
+   * possible.
+   *
+   * @param entries the base array to construct the map from.
+   * @param <K>     the type of the keys in the new map.
+   * @param <V>     the type of the values in the new map.
+   * @return a new map with each pair of the given array in it.
+   * @throws NullPointerException if the given object array is null.
+   * @throws ReflexionException   if the given array doesn't contain a fitting amount of key-value pairs.
+   */
   @SuppressWarnings("unchecked")
   public static <K, V> @Unmodifiable Map<K, V> newMapFromArray(@NonNull Object... entries) {
     // spare out some edge cases
@@ -71,10 +87,25 @@ public final class Util {
     return map;
   }
 
+  /**
+   * A fast version of a modulo operation.
+   *
+   * @param leftOperator  the left operand to execute the modulo on.
+   * @param rightOperator the right operand.
+   * @return the result of the modulo operation.
+   */
   public static int fastModulo(int leftOperator, int rightOperator) {
     return leftOperator & (rightOperator - 1);
   }
 
+  /**
+   * Tries to find the first non-null value from the given array, returning null if no such value was found.
+   *
+   * @param choices the array to find the first non-null element in.
+   * @param <T>     the type of elements in the given array.
+   * @return the first non-null element in the given array, null if no such element was found.
+   * @throws NullPointerException if the given array is null.
+   */
   @SafeVarargs
   public static @UnknownNullability <T> T firstNonNull(T... choices) {
     // why would you do that
@@ -105,11 +136,29 @@ public final class Util {
     return null;
   }
 
+  /**
+   * Throws the given exception as an unchecked exception removing the need to catch non-runtime exceptions.
+   *
+   * @param throwable the throwable to rethrow.
+   * @param <T>       the inferred type of the throwable.
+   * @throws T                    the exception to rethrow.
+   * @throws NullPointerException if the given throwable is null.
+   */
   @SuppressWarnings("unchecked")
   public static <T extends Throwable> void throwUnchecked(@NonNull Throwable throwable) throws T {
     throw (T) throwable;
   }
 
+  /**
+   * Checks if all elements in both arrays match taking care of some edge cases to reduce computation time.
+   *
+   * @param leftArr  the left array to check.
+   * @param rightArr the right array to check.
+   * @param tester   the tester for the elements in the arrays.
+   * @param <T>      the type of the elements in both arrays.
+   * @return true if all elements in both arrays match the given matcher, false otherwise.
+   * @throws NullPointerException if the given left/right array or element tester is null.
+   */
   public static <T> boolean allMatch(@Nullable T[] leftArr, @Nullable T[] rightArr, @NonNull BiPredicate<T, T> tester) {
     // one array is null? they can't match
     if (leftArr == null || rightArr == null) {
@@ -142,6 +191,18 @@ public final class Util {
     return true;
   }
 
+  /**
+   * Filters all elements from the given collection and applies the matching ones to the given mapper and returns a
+   * collection containing all filtered and mapped elements.
+   *
+   * @param in     the collection to filter and map the elements of.
+   * @param tester the tester to filter the elements from the given input collection.
+   * @param mapper the mapper to map the elements from the input collection which passed the given filter.
+   * @param <T>    the type of elements before the mapping.
+   * @param <O>    the type of elements after the mapping.
+   * @return a collection containing all filtered and mapped elements from the given input collection.
+   * @throws NullPointerException if the given input collection, tester or mapper is null.
+   */
   public static @NonNull <T, O> Collection<O> filterAndMap(
     @NonNull Collection<T> in,
     @NonNull Predicate<T> tester,

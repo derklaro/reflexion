@@ -44,19 +44,34 @@ import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A reflexion accessor factory which uses method handles to wrap methods and fields. <strong>DO NOT OVERRIDE THIS
+ * CLASS! IT IS ONLY OPEN FOR INTERNAL USE!</strong>
+ *
+ * @since 1.0
+ */
 public class MethodHandleAccessorFactory implements AccessorFactory {
 
-  private final Lookup trustedLookup;
+  private Lookup trustedLookup;
 
+  /**
+   * Constructs a new method handle accessor factory instance.
+   */
   public MethodHandleAccessorFactory() {
     this.trustedLookup = this.getTrustedLookup();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isAvailable() {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull FieldAccessor wrapField(@NonNull Reflexion reflexion, @NonNull Field field) {
     try {
@@ -71,6 +86,9 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method) {
     try {
@@ -82,6 +100,9 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion rfx, @NonNull Constructor<?> ctr) {
     try {
@@ -92,14 +113,41 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
   }
 
+  /**
+   * Gets the IMPL_LOOKUP field instance if possible. This method does not throw an exception but returns null if the
+   * field is not accessible for some reason.
+   *
+   * @return the IMPL_LOOKUP field instance, null if the lookup is not possible.
+   */
   protected @Nullable Lookup getTrustedLookup() {
     return UnsafeFieldAccessor.findImplLookup();
   }
 
+  /**
+   * Get the lookup instance to use for field / method lookups.
+   *
+   * @return the lookup instance to use for field / method lookups.
+   */
   private @NonNull Lookup getLookup() {
-    return this.trustedLookup == null ? MethodHandles.lookup() : this.trustedLookup;
+    if (this.trustedLookup == null) {
+      // cache this if we need to. MethodHandles.lookup() is a caller sensitive method and generates a new instance
+      // each time it gets called (which is not needed for us).
+      this.trustedLookup = MethodHandles.lookup();
+    }
+    // non-null at this point
+    return this.trustedLookup;
   }
 
+  /**
+   * Converts the given method handle to a generic handle which can be invoked with an array of objects and returns an
+   * object rather than requiring exact class instances.
+   *
+   * @param handle       the handle to generify.
+   * @param staticMethod if the method wrapped by the given method handle is static.
+   * @param ctor         if the method wrapped by the given method handle is a constructor.
+   * @return a generified version of the given method handle.
+   * @throws NullPointerException if the given method handle is null.
+   */
   private @NonNull MethodHandle convertToGeneric(@NonNull MethodHandle handle, boolean staticMethod, boolean ctor) {
     MethodHandle target = handle.asFixedArity();
     // special thing - we do not need the trailing array if we have 0 arguments anyway
@@ -117,6 +165,17 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     return target.asType(methodType);
   }
 
+  /**
+   * Converts the given field to a generic handle which can be invoked using an object and returns an object rather than
+   * requiring exact class instances.
+   *
+   * @param field       the field to wrap in a method handle.
+   * @param staticField if the given field is static.
+   * @param set         if the returned method handle should be a setter for the given field.
+   * @return a method handle which can be used to either get or set the value of the given field.
+   * @throws Exception            if any exception occurs during the field unreflection.
+   * @throws NullPointerException if the given field is null.
+   */
   private @NonNull MethodHandle convertFieldToGeneric(
     @NonNull Field field,
     boolean staticField,
@@ -147,6 +206,9 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     return handle.asType(mt);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int compareTo(@NonNull AccessorFactory o) {
     // always prefer native over this one
@@ -168,6 +230,11 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     return 0;
   }
 
+  /**
+   * An accessor for field get/set access using method handles.
+   *
+   * @since 1.0
+   */
   private static final class MethodHandleFieldAccessor implements FieldAccessor {
 
     private final Field field;
@@ -176,6 +243,14 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     private final MethodHandle getter;
     private final MethodHandle setter;
 
+    /**
+     * Constructs a new method handle field accessor instance.
+     *
+     * @param field     the field which is wrapped by the new accessor.
+     * @param reflexion the reflexion instance which produced the reflection lookup.
+     * @param getter    the getter method handle for the given field.
+     * @param setter    the setter method handle for the given field.
+     */
     public MethodHandleFieldAccessor(Field field, Reflexion reflexion, MethodHandle getter, MethodHandle setter) {
       this.field = field;
       this.reflexion = reflexion;
@@ -183,21 +258,33 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
       this.setter = setter;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Field getMember() {
       return this.field;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Reflexion getReflexion() {
       return this.reflexion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull <T> Result<T> getValue() {
       return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <T> Result<T> getValue(@Nullable Object instance) {
@@ -212,11 +299,17 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
       });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
       return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object instance, @Nullable Object value) {
       return Result.tryExecute(() -> {
@@ -232,44 +325,74 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
   }
 
+  /**
+   * A method accessor based on method handles.
+   *
+   * @since 1.0
+   */
   private static final class MethodHandleMethodAccessor implements MethodAccessor<Method> {
 
     private final Method method;
     private final Reflexion reflexion;
     private final MethodHandle methodHandle;
 
+    /**
+     * Constructs a new method handle method accessor instance.
+     *
+     * @param method       the method which is wrapped by this accessor.
+     * @param reflexion    the reflexion instance which produced the lookup call.
+     * @param methodHandle the method handle to get the method value.
+     */
     public MethodHandleMethodAccessor(Method method, Reflexion reflexion, MethodHandle methodHandle) {
       this.method = method;
       this.reflexion = reflexion;
       this.methodHandle = methodHandle;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Method getMember() {
       return this.method;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Reflexion getReflexion() {
       return this.reflexion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull <V> Result<V> invoke() {
       return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance) {
       return Result.tryExecute(() -> (V) this.methodHandle.invoke(instance));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args) {
       return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding(), args);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
@@ -282,44 +405,74 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     }
   }
 
+  /**
+   * A method accessor for constructors which is based on method handles.
+   *
+   * @since 1.0
+   */
   private static final class MethodHandleConstructorAccessor implements MethodAccessor<Constructor<?>> {
 
     private final Reflexion reflexion;
     private final Constructor<?> method;
     private final MethodHandle methodHandle;
 
+    /**
+     * Constructs a new method handle constructor accessor instance.
+     *
+     * @param method       the constructor which is wrapped by the accessor.
+     * @param reflexion    the reflexion instance which produced the reflection lookup call.
+     * @param methodHandle the method handle to invoke the constructor.
+     */
     public MethodHandleConstructorAccessor(Constructor<?> method, Reflexion reflexion, MethodHandle methodHandle) {
       this.method = method;
       this.reflexion = reflexion;
       this.methodHandle = methodHandle;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Constructor<?> getMember() {
       return this.method;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Reflexion getReflexion() {
       return this.reflexion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull <V> Result<V> invoke() {
       return this.invoke(null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance) {
       return Result.tryExecute(() -> (V) this.methodHandle.invoke());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull <V> Result<V> invokeWithArgs(@NotNull @NonNull Object... args) {
       return this.invoke(null, args);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NotNull @NonNull Object... args) {

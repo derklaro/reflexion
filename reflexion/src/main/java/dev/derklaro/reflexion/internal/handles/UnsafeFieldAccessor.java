@@ -28,12 +28,22 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An accessor to get the IMPL_LOOKUP field using the unsafe field methods provided by the jvm.
+ *
+ * @since 1.0
+ */
 final class UnsafeFieldAccessor {
 
   private UnsafeFieldAccessor() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Tries to get the IMPL_LOOKUP using the field methods provided by sun.misc.Unsafe.
+   *
+   * @return the IMPL_LOOKUP field value or null if the lookup is not possible.
+   */
   public static @Nullable Lookup findImplLookup() {
     try {
       // get the impl_lookup field (fail-fast)
