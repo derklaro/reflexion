@@ -31,10 +31,13 @@ import java.lang.reflect.Modifier;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 class MethodReflexionTest {
 
   @Test
+  @EnabledForJreRange(min = JRE.JAVA_17)
   void testMethodMatcher() {
     Assertions.assertEquals(26, Reflexion.on(SeedClass.class).findMethods(newMatcher()).size());
     Assertions.assertEquals(19, Reflexion.on(SeedSuperClass.class).findMethods(newMatcher()).size());

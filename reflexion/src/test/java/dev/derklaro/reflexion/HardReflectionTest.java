@@ -32,6 +32,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -56,6 +58,7 @@ class HardReflectionTest {
 
   @ParameterizedTest
   @MethodSource("factories")
+  @EnabledForJreRange(min = JRE.JAVA_17)
   void testHardMethodAccessIsPossible(AccessorFactory factory) {
     Reflexion reflexion = Reflexion.on(Lookup.class, null, factory);
 
@@ -63,7 +66,7 @@ class HardReflectionTest {
     Assertions.assertTrue(accessor.isPresent());
 
     int adjustedMods = accessor.get().<Integer>invokeWithArgs(Modifier.PUBLIC).getOrElse(0);
-    Assertions.assertEquals(1, adjustedMods);
+    Assertions.assertEquals(33, adjustedMods);
   }
 
   @ParameterizedTest
