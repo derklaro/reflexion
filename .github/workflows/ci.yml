@@ -97,9 +97,8 @@ jobs:
       - name: Build and test
         run: ./gradlew build test --no-daemon --stacktrace
 
-      # TODO: remove after testing
       - name: Upload java result
         uses: actions/upload-artifact@v3
         with:
           name: reflexion_jar-${{ matrix.tc.os }}-${{ matrix.tc.java }}
-          path: reflexion/build/libs/reflexion-1.0-SNAPSHOT.jar
+          path: reflexion/build/libs/reflexion-*.jar
