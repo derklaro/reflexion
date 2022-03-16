@@ -24,6 +24,7 @@
 
 package dev.derklaro.reflexion.internal.natives;
 
+import dev.derklaro.reflexion.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,6 +39,9 @@ import lombok.NonNull;
  * @since 1.0
  */
 final class NativeLibLoader {
+
+  private static final boolean NATIVE_DISABLED = Boolean.getBoolean(
+    Result.class.getPackage().getName() + ".native-disabled");
 
   private static final Os UNSUPPORTED_OS = new Os("unsupported", "", "");
   private static final String NATIVE_LIB_FILE_FORMAT = "reflexion-native/reflexion-%s_%s/%sreflexion.%s";
@@ -82,7 +86,7 @@ final class NativeLibLoader {
    */
   public static boolean tryLoadNative() {
     // check if we can load a native lib
-    if (OS == UNSUPPORTED_OS || OS_ARCH.equals("unsupported")) {
+    if (NATIVE_DISABLED || OS == UNSUPPORTED_OS || OS_ARCH.equals("unsupported")) {
       return false;
     }
 
