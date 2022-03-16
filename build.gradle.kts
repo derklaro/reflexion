@@ -56,8 +56,8 @@ subprojects {
 
         pom.apply {
           name.set(project.name)
-          description.set(project.description)
           url.set("https://github.com/derklaro/reflexion")
+          description.set("The fluent reflection access library of (yo)ur dreams")
 
           developers {
             developer {
