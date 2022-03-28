@@ -49,7 +49,7 @@ dependencies {
   testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 
   // jmh
-  val jmhVersion = "1.34"
+  val jmhVersion = "1.35"
   jmh("org.openjdk.jmh", "jmh-core", jmhVersion)
   jmh("org.openjdk.jmh", "jmh-generator-annprocess", jmhVersion)
 }
