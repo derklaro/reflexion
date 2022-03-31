@@ -43,7 +43,10 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
    */
   @Override
   public boolean isAvailable() {
-    return NATIVE_LOADED;
+    // this factory is not available without the native loaded trusted lookup
+    // to prevent confusion when the field was loaded via sun.misc.Unsafe rather
+    // than the native code
+    return NATIVE_LOADED && super.isAvailable();
   }
 
   /**
@@ -54,7 +57,7 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
     try {
       return (Lookup) FNativeReflect.GetImplLookup();
     } catch (Throwable exception) {
-      return super.getTrustedLookup();
+      return null;
     }
   }
 }

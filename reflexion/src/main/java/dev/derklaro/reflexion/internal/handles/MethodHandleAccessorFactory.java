@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class MethodHandleAccessorFactory implements AccessorFactory {
 
-  private Lookup trustedLookup;
+  private final Lookup trustedLookup;
 
   /**
    * Constructs a new method handle accessor factory instance.
@@ -66,7 +66,10 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
    */
   @Override
   public boolean isAvailable() {
-    return true;
+    // depend on the trusted lookup availability - if it is not present we can just
+    // use the bare reflexion implementation, rather than needing to convert method
+    // handles back and forth
+    return this.trustedLookup != null;
   }
 
   /**
@@ -92,7 +95,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method) {
     try {
-      MethodHandle unreflected = this.getLookup().unreflect(method);
+      MethodHandle unreflected = this.trustedLookup.unreflect(method);
       boolean staticMethod = Modifier.isStatic(method.getModifiers());
       return new MethodHandleMethodAccessor(method, reflexion, this.convertToGeneric(unreflected, staticMethod, false));
     } catch (Exception exception) {
@@ -106,7 +109,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion rfx, @NonNull Constructor<?> ctr) {
     try {
-      MethodHandle unreflected = this.getLookup().unreflectConstructor(ctr);
+      MethodHandle unreflected = this.trustedLookup.unreflectConstructor(ctr);
       return new MethodHandleConstructorAccessor(ctr, rfx, this.convertToGeneric(unreflected, false, true));
     } catch (Exception exception) {
       throw new ReflexionException(exception);
@@ -121,21 +124,6 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
    */
   protected @Nullable Lookup getTrustedLookup() {
     return UnsafeFieldAccessor.findImplLookup();
-  }
-
-  /**
-   * Get the lookup instance to use for field / method lookups.
-   *
-   * @return the lookup instance to use for field / method lookups.
-   */
-  private @NonNull Lookup getLookup() {
-    if (this.trustedLookup == null) {
-      // cache this if we need to. MethodHandles.lookup() is a caller sensitive method and generates a new instance
-      // each time it gets called (which is not needed for us).
-      this.trustedLookup = MethodHandles.lookup();
-    }
-    // non-null at this point
-    return this.trustedLookup;
   }
 
   /**
@@ -185,12 +173,12 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     MethodHandle handle;
     if (staticField) {
       handle = set
-        ? this.getLookup().findStaticSetter(field.getDeclaringClass(), field.getName(), field.getType())
-        : this.getLookup().findStaticGetter(field.getDeclaringClass(), field.getName(), field.getType());
+        ? this.trustedLookup.findStaticSetter(field.getDeclaringClass(), field.getName(), field.getType())
+        : this.trustedLookup.findStaticGetter(field.getDeclaringClass(), field.getName(), field.getType());
     } else {
       handle = set
-        ? this.getLookup().findSetter(field.getDeclaringClass(), field.getName(), field.getType())
-        : this.getLookup().findGetter(field.getDeclaringClass(), field.getName(), field.getType());
+        ? this.trustedLookup.findSetter(field.getDeclaringClass(), field.getName(), field.getType())
+        : this.trustedLookup.findGetter(field.getDeclaringClass(), field.getName(), field.getType());
     }
 
     // generify the method type so that we don't need to worry about it when using the handles
