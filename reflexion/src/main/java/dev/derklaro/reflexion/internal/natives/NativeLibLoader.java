@@ -114,7 +114,7 @@ final class NativeLibLoader {
       try {
         Files.deleteIfExists(temp);
       } catch (IOException exception) {
-        // ok well, then live with it
+        // ok well, just leave the file there then
       }
     }));
 

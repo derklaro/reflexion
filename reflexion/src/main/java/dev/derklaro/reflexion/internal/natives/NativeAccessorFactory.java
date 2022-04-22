@@ -55,7 +55,8 @@ public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
   @Override
   protected @Nullable Lookup getTrustedLookup() {
     try {
-      return (Lookup) FNativeReflect.GetImplLookup();
+      // ensure that we were able to load the native library before trying anything
+      return NATIVE_LOADED ? (Lookup) FNativeReflect.GetImplLookup() : null;
     } catch (Throwable exception) {
       return null;
     }
