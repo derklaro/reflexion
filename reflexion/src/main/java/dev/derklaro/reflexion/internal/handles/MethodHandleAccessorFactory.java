@@ -123,7 +123,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
    * @return the IMPL_LOOKUP field instance, null if the lookup is not possible.
    */
   protected @Nullable Lookup getTrustedLookup() {
-    return UnsafeFieldAccessor.findImplLookup();
+    return ImplLookupAccessor.findImplLookup();
   }
 
   /**
