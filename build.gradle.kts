@@ -27,7 +27,7 @@ plugins {
 }
 
 allprojects {
-  version = "1.3.0"
+  version = "1.4.0-SNAPSHOT"
   group = "dev.derklaro.reflexion"
 }
 
