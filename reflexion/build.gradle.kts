@@ -85,7 +85,7 @@ tasks.withType<Javadoc> {
 }
 
 extensions.configure<CheckstyleExtension> {
-  toolVersion = "10.0"
+  toolVersion = "10.3.2"
 }
 
 extensions.configure<org.cadixdev.gradle.licenser.LicenseExtension> {
