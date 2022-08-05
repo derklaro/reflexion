@@ -220,10 +220,28 @@ public final class Result<S> implements Supplier<S> {
   }
 
   /**
+   * Maps the successful result of this result into a new one or returns the same instance as before when this result
+   * already contained an exception. This method will not catch any exceptions thrown by the mapping function.
+   *
+   * @param function the mapping function to map the success value of this result.
+   * @param <M>      the new result type mapped from the given function.
+   * @return a new result based on the mapping function if this result was executed successfully.
+   * @throws NullPointerException if the given function is null.
+   * @since 1.5.0
+   */
+  @SuppressWarnings("unchecked")
+  public @NonNull <M> Result<M> flatMap(@NonNull Function<S, Result<M>> function) {
+    if (this.exception != null) {
+      return (Result<M>) this;
+    } else {
+      return function.apply(this.result);
+    }
+  }
+
+  /**
    * Maps the wrapped exceptional result of this result into a new one or returns the same instance as before when this
-   * result was executed successfully. This method will always return an exceptional result.
-   * <p>
-   * Note: exceptions thrown during the mapping of the exception are not caught.
+   * result was executed successfully. This method will always return an exceptional result. This method will not catch
+   * any exceptions thrown by the mapping function.
    *
    * @param function the mapping function for the wrapped exception.
    * @return a new result based on the mapping function if this result was executed exceptionally.
@@ -231,6 +249,24 @@ public final class Result<S> implements Supplier<S> {
    */
   public @NonNull Result<S> mapExceptional(@NonNull Function<Throwable, Throwable> function) {
     return this.exception == null ? this : Result.exceptional(function.apply(this.exception));
+  }
+
+  /**
+   * Maps the wrapped exceptional result of this result into a new one or returns the same instance as before when this
+   * result was executed successfully. This method will not catch any exceptions thrown by the mapping function.
+   *
+   * @param function the mapping function for the wrapped exception.
+   * @return a new result based on the mapping function if this result was executed exceptionally.
+   * @throws NullPointerException if the given mapping function is null.
+   * @since 1.5.0
+   */
+  @SuppressWarnings("unchecked")
+  public @NonNull <M> Result<M> flatMapExceptional(@NonNull Function<Throwable, Result<M>> function) {
+    if (this.exception == null) {
+      return (Result<M>) this;
+    } else {
+      return function.apply(this.exception);
+    }
   }
 
   /**
