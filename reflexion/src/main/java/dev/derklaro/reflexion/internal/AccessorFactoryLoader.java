@@ -27,6 +27,7 @@ package dev.derklaro.reflexion.internal;
 import dev.derklaro.reflexion.AccessorFactory;
 import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
 import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
+import dev.derklaro.reflexion.internal.jna.JnaAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +43,7 @@ import lombok.NonNull;
 public final class AccessorFactoryLoader {
 
   private static final AccessorFactory[] DEFAULT_FACTORIES = new AccessorFactory[]{
-    new NativeAccessorFactory(), new MethodHandleAccessorFactory(), new BareAccessorFactory()
+    new NativeAccessorFactory(), new JnaAccessorFactory(), new MethodHandleAccessorFactory(), new BareAccessorFactory()
   };
 
   private AccessorFactoryLoader() {

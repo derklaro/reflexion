@@ -38,6 +38,11 @@ dependencies {
   compileOnly("org.projectlombok", "lombok", lombokVersion)
   annotationProcessor("org.projectlombok", "lombok", lombokVersion)
 
+  // jna (optional - only used if present at runtime)
+  val jnaVersion = "5.12.1"
+  compileOnly("net.java.dev.jna", "jna", jnaVersion)
+  testRuntimeOnly("net.java.dev.jna", "jna", jnaVersion)
+
   // other libs
   val annotationsVersion = "23.0.0"
   compileOnly("org.jetbrains", "annotations", annotationsVersion)

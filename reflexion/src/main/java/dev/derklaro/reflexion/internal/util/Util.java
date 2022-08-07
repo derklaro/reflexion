@@ -229,4 +229,27 @@ public final class Util {
 
     return out;
   }
+
+  /**
+   * Checks if a class with the given name is present in the current runtime. Calling this method will not initialize
+   * the class.
+   *
+   * @param name the name of the class to check for presence.
+   * @return true if a class with the given name is present, false otherwise.
+   * @throws NullPointerException if the given name is null.
+   */
+  public static boolean isClassPresent(@NonNull String name) {
+    try {
+      // try to locate the class without initializing it - use the first available class loader for that
+      ClassLoader cl = firstNonNull(
+        Util.class.getClassLoader(),
+        Thread.currentThread().getContextClassLoader(),
+        ClassLoader.getSystemClassLoader());
+      Class.forName(name, false, cl);
+
+      return true;
+    } catch (ClassNotFoundException exception) {
+      return false;
+    }
+  }
 }

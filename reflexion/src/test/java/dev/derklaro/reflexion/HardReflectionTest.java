@@ -25,6 +25,7 @@
 package dev.derklaro.reflexion;
 
 import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
+import dev.derklaro.reflexion.internal.jna.JnaAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Constructor;
@@ -40,7 +41,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 class HardReflectionTest {
 
   static AccessorFactory[] factories() {
-    return new AccessorFactory[]{new NativeAccessorFactory(), new MethodHandleAccessorFactory()};
+    return new AccessorFactory[]{
+      new JnaAccessorFactory(),
+      new NativeAccessorFactory(),
+      new MethodHandleAccessorFactory()};
   }
 
   @ParameterizedTest
