@@ -31,6 +31,7 @@ import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.ReflexionException;
 import dev.derklaro.reflexion.Result;
 import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
+import dev.derklaro.reflexion.internal.jna.JnaAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -200,7 +201,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
   @Override
   public int compareTo(@NonNull AccessorFactory o) {
     // always prefer native over this one
-    if (o instanceof NativeAccessorFactory) {
+    if (o instanceof NativeAccessorFactory || o instanceof JnaAccessorFactory) {
       return 1;
     }
 
