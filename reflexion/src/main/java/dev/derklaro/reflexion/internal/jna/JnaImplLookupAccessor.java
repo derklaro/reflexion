@@ -53,6 +53,8 @@ final class JnaImplLookupAccessor {
   private static final int INITIAL_READ_BUFFER_SIZE = 512;
 
   private static final String JVM_LIB_NAME = "jvm";
+  private static final String JVM_LIB_NAME_MACOS = "java";
+
   private static final String ACCESS_CLASS_INTERNAL_NAME = "java/lang/invoke/ImplLookupAccess";
   private static final String ACCESS_CLASS_JVM_NAME = ACCESS_CLASS_INTERNAL_NAME.replace('/', '.');
 
@@ -145,7 +147,8 @@ final class JnaImplLookupAccessor {
     }
 
     // load the lib
-    return Native.load(JVM_LIB_NAME, Jvm.class, loadOptions);
+    String jvmLibName = Platform.isMac() ? JVM_LIB_NAME_MACOS : JVM_LIB_NAME;
+    return Native.load(jvmLibName, Jvm.class, loadOptions);
   }
 
   /**
