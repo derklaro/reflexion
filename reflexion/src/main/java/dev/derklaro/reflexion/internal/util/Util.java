@@ -35,6 +35,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -74,7 +75,7 @@ public final class Util {
     }
 
     // check if the given array has a size which is dividable by 2 (key - value pairs)
-    if (fastModulo(entries.length, 2) != 0) {
+    if ((entries.length % 2) != 0) {
       throw new ReflexionException("Given map based array has unexpected size of " + entries.length);
     }
 
@@ -93,7 +94,10 @@ public final class Util {
    * @param leftOperator  the left operand to execute the modulo on.
    * @param rightOperator the right operand.
    * @return the result of the modulo operation.
+   * @deprecated use normal modulo instead, this method might return incorrect results.
    */
+  @Deprecated
+  @ScheduledForRemoval
   public static int fastModulo(int leftOperator, int rightOperator) {
     return leftOperator & (rightOperator - 1);
   }
