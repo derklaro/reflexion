@@ -24,7 +24,7 @@
 
 plugins {
   id("checkstyle")
-  id("me.champeau.jmh") version "0.6.6"
+  id("me.champeau.jmh") version "0.6.7"
   id("org.cadixdev.licenser") version "0.6.1"
 }
 
