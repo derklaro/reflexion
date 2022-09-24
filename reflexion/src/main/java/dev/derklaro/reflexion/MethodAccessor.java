@@ -52,8 +52,9 @@ public interface MethodAccessor<T extends Executable> extends BaseAccessor<T> {
    * Invokes the underlying method using the given instance. This method never throws an exception all exceptions are
    * given back to the caller in the returned result instance.
    * <p>
-   * This method invokes the wrapped method without any arguments. The given instance should be null when invoking a
-   * static method.
+   * This method invokes the wrapped method without any arguments. The given instance should be present in case the
+   * method is not static, and the associated reflexion instance has no instance bound to it. If an instance is given in
+   * case the method is static, the instance will be ignored silently.
    *
    * @param instance the instance to invoke the wrapped method on.
    * @param <V>      the type of values returned by the wrapped method.
@@ -76,7 +77,8 @@ public interface MethodAccessor<T extends Executable> extends BaseAccessor<T> {
    * Invokes the underlying method using the given instance. This method never throws an exception all exceptions are
    * given back to the caller in the returned result instance.
    * <p>
-   * The given instance should be null when invoking a static method.
+   * The given instance should be present in case the method is not static, and the associated reflexion instance has no
+   * instance bound to it. If an instance is given in case the method is static, the instance will be ignored silently.
    *
    * @param instance the instance to invoke the wrapped method on.
    * @param args     the arguments to use on when invoking the wrapped method.

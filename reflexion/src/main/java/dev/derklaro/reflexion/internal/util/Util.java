@@ -24,7 +24,9 @@
 
 package dev.derklaro.reflexion.internal.util;
 
+import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.ReflexionException;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -255,5 +257,37 @@ public final class Util {
     } catch (ClassNotFoundException exception) {
       return false;
     }
+  }
+
+  /**
+   * Gets the binding instance to execute the requested action on a field or method. If the member is static this method
+   * always returns {@code null} as no binding is required for the operation to succeed.
+   * <p>
+   * The given requested binding will be preferred over the binding of the reflexion instance.
+   *
+   * @param reflexionInstance the reflexion instance which created the accessor.
+   * @param requestedBinding  the binding instance requested by the user, {@code null} if not given.
+   * @param modifiers         the modifiers of the member the operation is made on.
+   * @return the binding instance to use for executing the operation on the member.
+   * @throws IllegalArgumentException if a binding is required but not given.
+   */
+  public static @Nullable Object getBinding(
+    @NonNull Reflexion reflexionInstance,
+    @Nullable Object requestedBinding,
+    int modifiers
+  ) {
+    // static fields/methods don't need a binding to get the value from
+    if (Modifier.isStatic(modifiers)) {
+      return null;
+    }
+
+    // ensure that we got a binding
+    Object binding = firstNonNull(requestedBinding, reflexionInstance.getBinding());
+    if (binding == null) {
+      throw new IllegalArgumentException("Missing binding to execute action on non-static accessor");
+    }
+
+    // binding is present
+    return binding;
   }
 }

@@ -49,7 +49,8 @@ public interface FieldAccessor extends BaseAccessor<Field> {
    * Gets the value of the wrapped field using the given instance. This method never throws an exception, all exceptions
    * are given back to the caller in the returned result instance.
    * <p>
-   * The given instance should be present in case the field is not static, null otherwise.
+   * The given instance should be present in case the field is not static, and the associated reflexion instance has no
+   * instance bound to it. If an instance is given in case the field is static, the instance will be ignored silently.
    *
    * @param instance the instance to use when getting the field value.
    * @param <T>      the type of the data returned from the field.
@@ -71,7 +72,8 @@ public interface FieldAccessor extends BaseAccessor<Field> {
    * Sets the value of the wrapped field in the given object instance. This method never throws an exception, all
    * exceptions are given back to the caller in the returned result instance.
    * <p>
-   * The given instance should be present in case the field is not static, null otherwise.
+   * The given instance should be present in case the field is not static, and the associated reflexion instance has no
+   * instance bound to it. If an instance is given in case the field is static, the instance will be ignored silently.
    *
    * @param instance the instance of the object to set the new field value in.
    * @param value    the new value of the field to set.

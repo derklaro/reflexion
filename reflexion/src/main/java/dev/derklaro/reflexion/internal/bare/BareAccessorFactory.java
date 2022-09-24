@@ -30,10 +30,10 @@ import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.ReflexionException;
 import dev.derklaro.reflexion.Result;
+import dev.derklaro.reflexion.internal.util.Util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,7 +142,7 @@ public final class BareAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull <T> Result<T> getValue() {
-      return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
+      return this.getValue(null);
     }
 
     /**
@@ -151,7 +151,10 @@ public final class BareAccessorFactory implements AccessorFactory {
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <T> Result<T> getValue(@Nullable Object instance) {
-      return Result.tryExecute(() -> (T) this.field.get(instance));
+      return Result.tryExecute(() -> {
+        Object binding = Util.getBinding(this.reflexion, instance, this.field.getModifiers());
+        return (T) this.field.get(binding);
+      });
     }
 
     /**
@@ -159,7 +162,7 @@ public final class BareAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
-      return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
+      return this.setValue(null, value);
     }
 
     /**
@@ -168,7 +171,9 @@ public final class BareAccessorFactory implements AccessorFactory {
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object instance, @Nullable Object value) {
       return Result.tryExecute(() -> {
-        this.field.set(instance, value);
+        Object binding = Util.getBinding(this.reflexion, instance, this.field.getModifiers());
+        this.field.set(binding, value);
+
         return null;
       });
     }
@@ -216,7 +221,7 @@ public final class BareAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull <V> Result<V> invoke() {
-      return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding());
+      return this.invoke(null);
     }
 
     /**
@@ -225,7 +230,10 @@ public final class BareAccessorFactory implements AccessorFactory {
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance) {
-      return Result.tryExecute(() -> (V) this.method.invoke(instance));
+      return Result.tryExecute(() -> {
+        Object binding = Util.getBinding(this.reflexion, instance, this.method.getModifiers());
+        return (V) this.method.invoke(binding);
+      });
     }
 
     /**
@@ -233,7 +241,7 @@ public final class BareAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args) {
-      return this.invoke(this.reflexion.getBinding(), args);
+      return this.invoke(null, args);
     }
 
     /**
@@ -242,7 +250,10 @@ public final class BareAccessorFactory implements AccessorFactory {
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
-      return Result.tryExecute(() -> (V) this.method.invoke(instance, args));
+      return Result.tryExecute(() -> {
+        Object binding = Util.getBinding(this.reflexion, instance, this.method.getModifiers());
+        return (V) this.method.invoke(binding, args);
+      });
     }
   }
 

@@ -33,6 +33,7 @@ import dev.derklaro.reflexion.Result;
 import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
 import dev.derklaro.reflexion.internal.jna.JnaAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;
+import dev.derklaro.reflexion.internal.util.Util;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -268,7 +269,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull <T> Result<T> getValue() {
-      return this.getValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding());
+      return this.getValue(null);
     }
 
     /**
@@ -278,13 +279,8 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     @SuppressWarnings("unchecked")
     public @NonNull <T> Result<T> getValue(@Nullable Object instance) {
       return Result.tryExecute(() -> {
-        if (Modifier.isStatic(this.field.getModifiers())) {
-          // no need for the instance, ignore it
-          return (T) this.getter.invoke();
-        } else {
-          // we need to give the instance
-          return (T) this.getter.invoke(instance);
-        }
+        Object binding = Util.getBinding(this.reflexion, instance, this.field.getModifiers());
+        return (T) (binding == null ? this.getter.invoke() : this.getter.invoke(binding));
       });
     }
 
@@ -293,7 +289,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object value) {
-      return this.setValue(Modifier.isStatic(this.field.getModifiers()) ? null : this.reflexion.getBinding(), value);
+      return this.setValue(null, value);
     }
 
     /**
@@ -302,13 +298,15 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     @Override
     public @NonNull Result<Void> setValue(@Nullable Object instance, @Nullable Object value) {
       return Result.tryExecute(() -> {
-        if (Modifier.isStatic(this.field.getModifiers())) {
+        Object binding = Util.getBinding(this.reflexion, instance, this.field.getModifiers());
+        if (binding == null) {
           // no need for the instance, ignore it
           this.setter.invoke(value);
         } else {
           // we need to give the instance
-          this.setter.invoke(instance, value);
+          this.setter.invoke(binding, value);
         }
+
         return null;
       });
     }
@@ -359,7 +357,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull <V> Result<V> invoke() {
-      return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding());
+      return this.invoke(null);
     }
 
     /**
@@ -368,7 +366,10 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance) {
-      return Result.tryExecute(() -> (V) this.methodHandle.invoke(instance));
+      return Result.tryExecute(() -> {
+        Object binding = Util.getBinding(this.reflexion, instance, this.method.getModifiers());
+        return (V) this.methodHandle.invoke(binding);
+      });
     }
 
     /**
@@ -376,7 +377,7 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
      */
     @Override
     public @NonNull <V> Result<V> invokeWithArgs(@NonNull Object... args) {
-      return this.invoke(Modifier.isStatic(this.method.getModifiers()) ? null : this.reflexion.getBinding(), args);
+      return this.invoke(null, args);
     }
 
     /**
@@ -385,11 +386,15 @@ public class MethodHandleAccessorFactory implements AccessorFactory {
     @Override
     @SuppressWarnings("unchecked")
     public @NonNull <V> Result<V> invoke(@Nullable Object instance, @NonNull Object... args) {
-      // convert no-args actually to a no-args call
+      // we cannot invoke a method handle with zero arguments - in that case we need to call the method without the
+      // argument array. Delegating to the invoke method which does that is the best choice
       if (args.length == 0) {
         return this.invoke(instance);
       } else {
-        return Result.tryExecute(() -> (V) this.methodHandle.invoke(instance, args));
+        return Result.tryExecute(() -> {
+          Object binding = Util.getBinding(this.reflexion, instance, this.method.getModifiers());
+          return (V) this.methodHandle.invoke(binding, args);
+        });
       }
     }
   }
