@@ -23,6 +23,7 @@
  */
 
 plugins {
+  id("jacoco")
   id("checkstyle")
   id("me.champeau.jmh") version "0.6.7"
   id("org.cadixdev.licenser") version "0.6.1"
@@ -72,6 +73,20 @@ tasks.withType<Test> {
   testLogging {
     events("started", "passed", "skipped", "failed")
   }
+
+  finalizedBy(tasks.getByName("jacocoTestReport"))
+}
+
+tasks.withType<JacocoReport> {
+  reports {
+    // disable xml & csv reports
+    xml.required.set(false)
+    csv.required.set(false)
+
+    // enable html reporting
+    html.required.set(true)
+    html.outputLocation.set(layout.buildDirectory.dir("jacocoReport"))
+  }
 }
 
 tasks.withType<Checkstyle> {
@@ -89,8 +104,12 @@ tasks.withType<Javadoc> {
   options.addStringOption("-html5")
 }
 
+extensions.configure<JacocoPluginExtension> {
+  toolVersion = "0.8.8"
+}
+
 extensions.configure<CheckstyleExtension> {
-  toolVersion = "10.3.2"
+  toolVersion = "10.3.3"
 }
 
 extensions.configure<org.cadixdev.gradle.licenser.LicenseExtension> {
