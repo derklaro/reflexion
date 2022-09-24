@@ -39,10 +39,10 @@ class MethodReflexionTest {
   @Test
   @EnabledForJreRange(min = JRE.JAVA_17)
   void testMethodMatcher() {
-    Assertions.assertEquals(26, Reflexion.on(SeedClass.class).findMethods(newMatcher()).size());
-    Assertions.assertEquals(19, Reflexion.on(SeedSuperClass.class).findMethods(newMatcher()).size());
+    Assertions.assertEquals(28, Reflexion.on(SeedClass.class).findMethods(newMatcher()).size());
+    Assertions.assertEquals(20, Reflexion.on(SeedSuperClass.class).findMethods(newMatcher()).size());
 
-    Assertions.assertEquals(8, Reflexion.on(SeedClass.class).findMethods(newMatcher()
+    Assertions.assertEquals(9, Reflexion.on(SeedClass.class).findMethods(newMatcher()
       .exactType(Method::getDeclaringClass, SeedSuperClass.class)
     ).size());
     Assertions.assertEquals(4, Reflexion.on(SeedClass.class).findMethods(newMatcher()

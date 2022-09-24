@@ -67,7 +67,7 @@ class FieldReflexionTest {
 
   @Test
   void testFieldsLookup() {
-    Assertions.assertEquals(10, Reflexion.on(SeedClass.class).findFields(newMatcher()).size());
+    Assertions.assertEquals(12, Reflexion.on(SeedClass.class).findFields(newMatcher()).size());
   }
 
   @Test
@@ -91,8 +91,8 @@ class FieldReflexionTest {
     Assertions.assertEquals(4, reflexion.findFields(newMatcher().exactType(Field::getType, int.class)
       .or(newMatcher().exactType(Field::getType, double.class))).size());
 
-    Assertions.assertEquals(2, reflexion.findFields(newMatcher().hasModifier(Modifier.STATIC)).size());
-    Assertions.assertEquals(0, reflexion.findFields(newMatcher()
+    Assertions.assertEquals(4, reflexion.findFields(newMatcher().hasModifier(Modifier.STATIC)).size());
+    Assertions.assertEquals(2, reflexion.findFields(newMatcher()
       .hasModifier(Modifier.STATIC)
       .denyModifier(Modifier.FINAL)
     ).size());
