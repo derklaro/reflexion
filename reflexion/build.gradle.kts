@@ -25,7 +25,7 @@
 plugins {
   id("jacoco")
   id("checkstyle")
-  id("me.champeau.jmh") version "0.6.7"
+  id("me.champeau.jmh") version "0.6.8"
   id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -49,7 +49,7 @@ dependencies {
   compileOnly("org.jetbrains", "annotations", annotationsVersion)
 
   // testing
-  val junitVersion = "5.9.0"
+  val junitVersion = "5.9.1"
   testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
   testImplementation("org.junit.jupiter", "junit-jupiter-params", junitVersion)
   testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
