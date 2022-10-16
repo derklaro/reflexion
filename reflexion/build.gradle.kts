@@ -22,11 +22,13 @@
  * THE SOFTWARE.
  */
 
+import com.diffplug.gradle.spotless.SpotlessExtension
+
 plugins {
   id("jacoco")
   id("checkstyle")
   id("me.champeau.jmh") version "0.6.8"
-  id("org.cadixdev.licenser") version "0.6.1"
+  id("com.diffplug.spotless") version "6.11.0"
 }
 
 repositories {
@@ -112,7 +114,8 @@ extensions.configure<CheckstyleExtension> {
   toolVersion = "10.3.3"
 }
 
-extensions.configure<org.cadixdev.gradle.licenser.LicenseExtension> {
-  include("**/*.java")
-  header(rootProject.file("license_header.txt"))
+extensions.configure<SpotlessExtension> {
+  java {
+    licenseHeaderFile(rootProject.file("license_header.txt"))
+  }
 }

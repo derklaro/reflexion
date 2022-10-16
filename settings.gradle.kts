@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
-rootProject.name = "reflexion-parent"
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
+rootProject.name = "reflexion-parent"
 include("native", "reflexion")
