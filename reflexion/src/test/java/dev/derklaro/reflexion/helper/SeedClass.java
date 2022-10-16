@@ -22,9 +22,9 @@
  * THE SOFTWARE.
  */
 
-package dev.derklaro.reflexion;
+package dev.derklaro.reflexion.helper;
 
-final class SeedClass extends SeedSuperClass {
+public final class SeedClass extends SeedSuperClass {
 
   private static final String WORLD = "World";
   private static final long LONG = 123456789L;

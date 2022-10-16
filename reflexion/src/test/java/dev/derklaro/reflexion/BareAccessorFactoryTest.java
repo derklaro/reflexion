@@ -24,6 +24,7 @@
 
 package dev.derklaro.reflexion;
 
+import dev.derklaro.reflexion.helper.SeedClass;
 import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;

@@ -24,6 +24,7 @@
 
 package dev.derklaro.reflexion;
 
+import dev.derklaro.reflexion.helper.SeedClass;
 import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
 import dev.derklaro.reflexion.internal.jna.JnaAccessorFactory;
 import dev.derklaro.reflexion.internal.natives.NativeAccessorFactory;

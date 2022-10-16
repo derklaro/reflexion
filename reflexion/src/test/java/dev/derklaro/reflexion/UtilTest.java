@@ -95,4 +95,14 @@ class UtilTest {
     Assertions.assertEquals('W', iterator.next());
     Assertions.assertEquals('H', iterator.next());
   }
+
+  @Test
+  void testEnsureTrue() {
+    Assertions.assertDoesNotThrow(() -> Util.ensureTrue(true, "Hello World!"));
+
+    Throwable thrown = Assertions.assertThrows(
+      IllegalStateException.class,
+      () -> Util.ensureTrue(false, "Hello World!"));
+    Assertions.assertEquals("Hello World!", thrown.getMessage());
+  }
 }

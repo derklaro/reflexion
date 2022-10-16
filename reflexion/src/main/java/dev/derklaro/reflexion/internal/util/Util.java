@@ -269,6 +269,7 @@ public final class Util {
    * @param requestedBinding  the binding instance requested by the user, {@code null} if not given.
    * @param modifiers         the modifiers of the member the operation is made on.
    * @return the binding instance to use for executing the operation on the member.
+   * @throws NullPointerException     if the given reflexion instance is null.
    * @throws IllegalArgumentException if a binding is required but not given.
    */
   public static @Nullable Object getBinding(
@@ -289,5 +290,20 @@ public final class Util {
 
     // binding is present
     return binding;
+  }
+
+  /**
+   * Ensures that the given condition is true, throwing an exception with the given message otherwise.
+   *
+   * @param condition the condition to check.
+   * @param message   the message to throw the exception with.
+   * @throws NullPointerException  if the given message is null.
+   * @throws IllegalStateException if the given condition is false.
+   * @since 1.6
+   */
+  public static void ensureTrue(boolean condition, @NonNull String message) {
+    if (!condition) {
+      throw new IllegalStateException(message);
+    }
   }
 }

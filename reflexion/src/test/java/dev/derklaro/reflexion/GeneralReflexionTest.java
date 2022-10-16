@@ -24,6 +24,7 @@
 
 package dev.derklaro.reflexion;
 
+import dev.derklaro.reflexion.helper.SeedClass;
 import dev.derklaro.reflexion.internal.bare.BareAccessorFactory;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -73,7 +74,7 @@ class GeneralReflexionTest {
 
   @Test
   void testClassLookup() {
-    Optional<Reflexion> reflexion = Reflexion.find("dev.derklaro.reflexion.SeedClass");
+    Optional<Reflexion> reflexion = Reflexion.find("dev.derklaro.reflexion.helper.SeedClass");
 
     Assertions.assertTrue(reflexion.isPresent());
     Assertions.assertEquals(SeedClass.class, reflexion.get().getWrappedClass());
@@ -82,7 +83,7 @@ class GeneralReflexionTest {
   @Test
   void testClassLookupClassLoader() {
     ClassLoader loader = ClassLoader.getSystemClassLoader();
-    Optional<Reflexion> reflexion = Reflexion.find("dev.derklaro.reflexion.SeedClass", loader);
+    Optional<Reflexion> reflexion = Reflexion.find("dev.derklaro.reflexion.helper.SeedClass", loader);
 
     Assertions.assertTrue(reflexion.isPresent());
     Assertions.assertEquals(SeedClass.class, reflexion.get().getWrappedClass());
@@ -91,7 +92,7 @@ class GeneralReflexionTest {
   @Test
   void testClassGetClassLoader() {
     ClassLoader loader = ClassLoader.getSystemClassLoader();
-    Reflexion reflexion = Reflexion.get("dev.derklaro.reflexion.SeedClass", loader);
+    Reflexion reflexion = Reflexion.get("dev.derklaro.reflexion.helper.SeedClass", loader);
 
     Assertions.assertEquals(SeedClass.class, reflexion.getWrappedClass());
     Assertions.assertThrows(ReflexionException.class, () -> Reflexion.get("a", loader));
@@ -99,7 +100,7 @@ class GeneralReflexionTest {
 
   @Test
   void testClassLookupAny() {
-    Optional<Reflexion> reflexion = Reflexion.findAny("gone", "gone2", "dev.derklaro.reflexion.SeedClass");
+    Optional<Reflexion> reflexion = Reflexion.findAny("gone", "gone2", "dev.derklaro.reflexion.helper.SeedClass");
 
     Assertions.assertTrue(reflexion.isPresent());
     Assertions.assertEquals(SeedClass.class, reflexion.get().getWrappedClass());
@@ -108,7 +109,7 @@ class GeneralReflexionTest {
   @Test
   void testClassLookupAnyClassLoader() {
     ClassLoader loader = ClassLoader.getSystemClassLoader();
-    Optional<Reflexion> reflexion = Reflexion.findAny(loader, "gone", "gone2", "dev.derklaro.reflexion.SeedClass");
+    Optional<Reflexion> reflexion = Reflexion.findAny(loader, "gone", "gone2", "dev.derklaro.reflexion.helper.SeedClass");
 
     Assertions.assertTrue(reflexion.isPresent());
     Assertions.assertEquals(SeedClass.class, reflexion.get().getWrappedClass());
@@ -117,7 +118,7 @@ class GeneralReflexionTest {
   @Test
   void testClassGetAnyClassLoader() {
     ClassLoader loader = ClassLoader.getSystemClassLoader();
-    Reflexion reflexion = Reflexion.getAny(loader, "gone", "gone2", "dev.derklaro.reflexion.SeedClass");
+    Reflexion reflexion = Reflexion.getAny(loader, "gone", "gone2", "dev.derklaro.reflexion.helper.SeedClass");
 
     Assertions.assertEquals(SeedClass.class, reflexion.getWrappedClass());
     Assertions.assertThrows(ReflexionException.class, () -> Reflexion.getAny(loader, "a", "b", "c"));

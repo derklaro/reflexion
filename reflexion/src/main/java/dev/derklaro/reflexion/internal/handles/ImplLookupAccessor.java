@@ -24,11 +24,13 @@
 
 package dev.derklaro.reflexion.internal.handles;
 
+import dev.derklaro.reflexion.internal.unsafe.UnsafeAccess;
+import dev.derklaro.reflexion.internal.unsafe.UnsafeAccessibleObject;
 import dev.derklaro.reflexion.internal.util.Util;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 /**
  * An accessor to get the IMPL_LOOKUP field using the unsafe field methods provided by the jvm.
@@ -49,7 +51,10 @@ final class ImplLookupAccessor {
   public static @Nullable Lookup findImplLookup() {
     // we prefer direct access as the user is 100% sure what he is doing and we are not relying
     // on sun internal methods if not 100% needed
-    return Util.firstNonNull(tryResolveUsingDirectAccess(), tryResolveUsingUnsafe());
+    return Util.firstNonNull(
+      tryResolveUsingDirectAccess(),
+      tryResolveUsingUnsafeGetObject(),
+      tryResolveUsingUnsafeAccessibleObject());
   }
 
   /**
@@ -79,36 +84,55 @@ final class ImplLookupAccessor {
    *
    * @return the IMPL_LOOKUP instance, resolved using sun.misc.unsafe or null if not possible.
    */
-  private static @Nullable Lookup tryResolveUsingUnsafe() {
-    try {
-      // get the impl_lookup field (fail-fast)
-      Field implLookupField = Lookup.class.getDeclaredField("IMPL_LOOKUP");
+  @VisibleForTesting
+  static @Nullable Lookup tryResolveUsingUnsafeGetObject() {
+    if (UnsafeAccess.isAvailable()) {
+      try {
+        // get the impl_lookup field (fail-fast)
+        Field lookupField = Lookup.class.getDeclaredField("IMPL_LOOKUP");
 
-      // unsafe class lookup
-      Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+        // get the base & offset of the field
+        Object implBase = UnsafeAccess.invokeMethod("staticFieldBase", new Class<?>[]{Field.class}, lookupField);
+        Long offset = (Long) UnsafeAccess.invokeMethod("staticFieldOffset", new Class<?>[]{Field.class}, lookupField);
 
-      // go over the 'theUnsafe' field
-      Field field = unsafeClass.getDeclaredField("theUnsafe");
-      field.setAccessible(true);
-
-      // get the methods to resolve the field base / field offset
-      Method staticFieldBase = unsafeClass.getMethod("staticFieldBase", Field.class);
-      Method staticFieldOffset = unsafeClass.getMethod("staticFieldOffset", Field.class);
-
-      // get the unsafe instance
-      Object unsafe = field.get(null);
-
-      // get the IMPL_LOOKUP field offset
-      Object implBase = staticFieldBase.invoke(unsafe, implLookupField);
-      long implOffset = (long) staticFieldOffset.invoke(unsafe, implLookupField);
-
-      // get the impl_lookup using Unsafe.getObject
-      Method getObject = unsafeClass.getMethod("getObject", Object.class, long.class);
-      return (Lookup) getObject.invoke(unsafe, implBase, implOffset);
-    } catch (Throwable exception) {
-      // we catch a Throwable to prevent NoSuchMethodErrors from happening in the future when the 'staticFieldBase' and
-      // 'staticFieldOffset' methods are removed from the unsafe class
-      return null;
+        // check if we got both results
+        if (implBase != null && offset != null) {
+          return (Lookup) UnsafeAccess.invokeMethod(
+            "getObject",
+            new Class<?>[]{Object.class, long.class},
+            implBase, offset);
+        }
+      } catch (NoSuchFieldException ignored) {
+        // should not happen
+      }
     }
+
+    // unable to get the field using that method
+    return null;
+  }
+
+  /**
+   * Tries to resolve the IMPL_LOOKUP field using the methods provided by sun.misc.unsafe. This method only works on a
+   * sun jvm and tries to force-override the accessible state of the IMPL_LOOKUP field.
+   *
+   * @return the IMPL_LOOKUP instance or null if not possible.
+   * @since 1.6
+   */
+  @VisibleForTesting
+  static @Nullable Lookup tryResolveUsingUnsafeAccessibleObject() {
+    if (UnsafeAccessibleObject.isAvailable()) {
+      try {
+        // get the impl_lookup field (fail-fast)
+        Field lookupField = Lookup.class.getDeclaredField("IMPL_LOOKUP");
+
+        // make it accessible and return it
+        UnsafeAccessibleObject.makeAccessible(lookupField);
+        return (Lookup) lookupField.get(null);
+      } catch (Exception ignored) {
+      }
+    }
+
+    // cannot get the field using that method
+    return null;
   }
 }

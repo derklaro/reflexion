@@ -30,7 +30,9 @@ import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.ReflexionException;
 import dev.derklaro.reflexion.Result;
+import dev.derklaro.reflexion.internal.unsafe.UnsafeAccessibleObject;
 import dev.derklaro.reflexion.internal.util.Util;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -43,6 +45,26 @@ import org.jetbrains.annotations.Nullable;
  * @since 1.0
  */
 public final class BareAccessorFactory implements AccessorFactory {
+
+  /**
+   * Makes the given accessible object accessible, either using force through sun.misc.Unsafe or by using direct access
+   * to AccessibleObject.setAccessible. Exceptions caused by this method are not caught.
+   * <p>
+   * On Java 9 or later this method might throw an InaccessibleObjectException.
+   *
+   * @param accessibleObject the object ot make accessible.
+   * @throws NullPointerException if the given object is null.
+   * @since 1.6
+   */
+  private static void makeAccessible(@NonNull AccessibleObject accessibleObject) {
+    if (UnsafeAccessibleObject.isAvailable()) {
+      // yes, we can use force
+      UnsafeAccessibleObject.makeAccessible(accessibleObject);
+    } else {
+      // no, just try to do it the normal way
+      accessibleObject.setAccessible(true);
+    }
+  }
 
   /**
    * {@inheritDoc}
@@ -58,7 +80,7 @@ public final class BareAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull FieldAccessor wrapField(@NonNull Reflexion reflexion, @NonNull Field field) {
     try {
-      field.setAccessible(true);
+      makeAccessible(field);
       return new BareFieldAccessor(field, reflexion);
     } catch (Exception exception) {
       throw new ReflexionException(exception);
@@ -71,7 +93,7 @@ public final class BareAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull MethodAccessor<Method> wrapMethod(@NonNull Reflexion reflexion, @NonNull Method method) {
     try {
-      method.setAccessible(true);
+      makeAccessible(method);
       return new BareMethodAccessor(method, reflexion);
     } catch (Exception exception) {
       throw new ReflexionException(exception);
@@ -84,7 +106,7 @@ public final class BareAccessorFactory implements AccessorFactory {
   @Override
   public @NonNull MethodAccessor<Constructor<?>> wrapConstructor(@NonNull Reflexion rfx, @NonNull Constructor<?> ctr) {
     try {
-      ctr.setAccessible(true);
+      makeAccessible(ctr);
       return new BareConstructorAccessor(rfx, ctr);
     } catch (Exception exception) {
       throw new ReflexionException(exception);

@@ -26,6 +26,7 @@ package dev.derklaro.reflexion;
 
 import static dev.derklaro.reflexion.matcher.ConstructorMatcher.newMatcher;
 
+import dev.derklaro.reflexion.helper.SeedClass;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Optional;

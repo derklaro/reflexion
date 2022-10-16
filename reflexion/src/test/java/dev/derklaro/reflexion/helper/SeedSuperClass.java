@@ -22,9 +22,9 @@
  * THE SOFTWARE.
  */
 
-package dev.derklaro.reflexion;
+package dev.derklaro.reflexion.helper;
 
-class SeedSuperClass {
+public class SeedSuperClass {
 
   private String a;
   private String b;

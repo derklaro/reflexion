@@ -26,6 +26,7 @@ package dev.derklaro.reflexion;
 
 import static dev.derklaro.reflexion.matcher.FieldMatcher.newMatcher;
 
+import dev.derklaro.reflexion.helper.SeedClass;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
