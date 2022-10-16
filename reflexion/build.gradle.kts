@@ -111,7 +111,7 @@ extensions.configure<JacocoPluginExtension> {
 }
 
 extensions.configure<CheckstyleExtension> {
-  toolVersion = "10.3.3"
+  toolVersion = "10.3.4"
 }
 
 extensions.configure<SpotlessExtension> {
