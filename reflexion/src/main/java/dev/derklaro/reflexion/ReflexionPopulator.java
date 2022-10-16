@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -95,7 +95,7 @@ final class ReflexionPopulator {
     @NonNull Function<Class<?>, T[]> publicExtractor
   ) {
     // all public members + init
-    Set<T> target = new HashSet<>(Arrays.asList(publicExtractor.apply(top)));
+    Set<T> target = new LinkedHashSet<>(Arrays.asList(publicExtractor.apply(top)));
 
     // all private members
     Class<?> current = top;
