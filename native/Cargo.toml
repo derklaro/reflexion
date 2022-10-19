@@ -11,7 +11,7 @@ keywords = [ "jni", "reflection", "reflexion" ]
 description = "A jni lib which allows read and write access to methods and fields."
 
 [dependencies]
-jni = "0.19.0"
+jni = "0.20.0"
 
 [lib]
 crate_type = ["cdylib"]
