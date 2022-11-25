@@ -409,6 +409,7 @@ public final class Reflexion {
    *
    * @param field the field to wrap in a field accessor.
    * @return a field accessor for the given field, bound to this reflexion instance.
+   * @throws NullPointerException if the given field is null.
    * @since 1.7.0
    */
   public static @NonNull FieldAccessor unreflectField(@NonNull Field field) {
@@ -426,6 +427,7 @@ public final class Reflexion {
    *
    * @param method the method to wrap in a method accessor.
    * @return a method accessor for the given method, bound to this reflexion instance.
+   * @throws NullPointerException if the given method is null.
    * @since 1.7.0
    */
   public static @NonNull MethodAccessor<Method> unreflectMethod(@NonNull Method method) {
@@ -443,6 +445,7 @@ public final class Reflexion {
    *
    * @param constructor the constructor to wrap in a method accessor.
    * @return a method accessor for the given constructor, bound to this reflexion instance.
+   * @throws NullPointerException if the given constructor is null.
    * @since 1.7.0
    */
   public static @NonNull MethodAccessor<Constructor<?>> unreflectConstructor(@NonNull Constructor<?> constructor) {
@@ -528,6 +531,7 @@ public final class Reflexion {
    *
    * @param field the field to wrap in a field accessor.
    * @return a field accessor for the given field, bound to this reflexion instance.
+   * @throws NullPointerException if the given field is null.
    * @since 1.7.0
    */
   public @NonNull FieldAccessor unreflect(@NonNull Field field) {
@@ -541,6 +545,7 @@ public final class Reflexion {
    *
    * @param method the method to wrap in a method accessor.
    * @return a method accessor for the given method, bound to this reflexion instance.
+   * @throws NullPointerException if the given method is null.
    * @since 1.7.0
    */
   public @NonNull MethodAccessor<Method> unreflect(@NonNull Method method) {
@@ -554,6 +559,7 @@ public final class Reflexion {
    *
    * @param constructor the constructor to wrap in a method accessor.
    * @return a method accessor for the given constructor, bound to this reflexion instance.
+   * @throws NullPointerException if the given constructor is null.
    * @since 1.7.0
    */
   public @NonNull MethodAccessor<Constructor<?>> unreflect(@NonNull Constructor<?> constructor) {
