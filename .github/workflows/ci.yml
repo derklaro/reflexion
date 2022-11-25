@@ -94,7 +94,7 @@ jobs:
           path: reflexion/src/main/resources/reflexion-native
 
       - name: Build and test
-        run: ./gradlew build test --no-daemon --stacktrace
+        run: ./gradlew build test -x jacocoTestReport --no-daemon --stacktrace
 
       - name: Upload java result
         uses: actions/upload-artifact@v3
