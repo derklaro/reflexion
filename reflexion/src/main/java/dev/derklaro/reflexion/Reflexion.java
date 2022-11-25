@@ -396,6 +396,60 @@ public final class Reflexion {
   }
 
   // ------------------
+  // java reflect helpers
+  // ------------------
+
+  /**
+   * Unreflects the given field and wraps it in a field accessor, while preserving the functionality of bindings and
+   * better abstraction. This method is specifically useful when an iteration for internal reasons is made, or a java
+   * field instance is already known.
+   * <p>
+   * This method creates a new reflexion instance which is bound to the declaring class of the field and then unreflects
+   * it. If a specific binding is required use {@code Reflexion.onBound(instance).unreflect(field)} instead.
+   *
+   * @param field the field to wrap in a field accessor.
+   * @return a field accessor for the given field, bound to this reflexion instance.
+   * @since 1.7.0
+   */
+  public static @NonNull FieldAccessor unreflectField(@NonNull Field field) {
+    return Reflexion.on(field.getDeclaringClass()).unreflect(field);
+  }
+
+  /**
+   * Unreflects the given method and wraps it in a method accessor, while preserving the functionality of bindings and
+   * better abstraction. This method is specifically useful when an iteration for internal reasons is made, or a java
+   * method instance is already known.
+   * <p>
+   * This method creates a new reflexion instance which is bound to the declaring class of the method and then
+   * unreflects it. If a specific binding is required use {@code Reflexion.onBound(instance).unreflect(method)}
+   * instead.
+   *
+   * @param method the method to wrap in a method accessor.
+   * @return a method accessor for the given method, bound to this reflexion instance.
+   * @since 1.7.0
+   */
+  public static @NonNull MethodAccessor<Method> unreflectMethod(@NonNull Method method) {
+    return Reflexion.on(method.getDeclaringClass()).unreflect(method);
+  }
+
+  /**
+   * Unreflects the given constructor and wraps it in a method accessor, while preserving the functionality of bindings
+   * and better abstraction. This method is specifically useful when an iteration for internal reasons is made, or a
+   * java constructor instance is already known.
+   * <p>
+   * This method creates a new reflexion instance which is bound to the declaring class of the constructor and then
+   * unreflects it. If a specific binding is required use {@code Reflexion.onBound(instance).unreflect(constructor)}
+   * instead.
+   *
+   * @param constructor the constructor to wrap in a method accessor.
+   * @return a method accessor for the given constructor, bound to this reflexion instance.
+   * @since 1.7.0
+   */
+  public static @NonNull MethodAccessor<Constructor<?>> unreflectConstructor(@NonNull Constructor<?> constructor) {
+    return Reflexion.on(constructor.getDeclaringClass()).unreflect(constructor);
+  }
+
+  // ------------------
   // instance methods
   // ------------------
 
@@ -461,6 +515,49 @@ public final class Reflexion {
    */
   public @NonNull AccessorFactory getAccessorFactory() {
     return this.accFactory;
+  }
+
+  // ------------------
+  // java reflect helpers
+  // ------------------
+
+  /**
+   * Unreflects the given field and wraps it in a field accessor, while preserving the functionality of bindings and
+   * better abstraction. This method is specifically useful when an iteration for internal reasons is made, or a java
+   * field instance is already known.
+   *
+   * @param field the field to wrap in a field accessor.
+   * @return a field accessor for the given field, bound to this reflexion instance.
+   * @since 1.7.0
+   */
+  public @NonNull FieldAccessor unreflect(@NonNull Field field) {
+    return this.accFactory.wrapField(this, field);
+  }
+
+  /**
+   * Unreflects the given method and wraps it in a method accessor, while preserving the functionality of bindings and
+   * better abstraction. This method is specifically useful when an iteration for internal reasons is made, or a java
+   * method instance is already known.
+   *
+   * @param method the method to wrap in a method accessor.
+   * @return a method accessor for the given method, bound to this reflexion instance.
+   * @since 1.7.0
+   */
+  public @NonNull MethodAccessor<Method> unreflect(@NonNull Method method) {
+    return this.accFactory.wrapMethod(this, method);
+  }
+
+  /**
+   * Unreflects the given constructor and wraps it in a method accessor, while preserving the functionality of bindings
+   * and better abstraction. This method is specifically useful when an iteration for internal reasons is made, or a
+   * java constructor instance is already known.
+   *
+   * @param constructor the constructor to wrap in a method accessor.
+   * @return a method accessor for the given constructor, bound to this reflexion instance.
+   * @since 1.7.0
+   */
+  public @NonNull MethodAccessor<Constructor<?>> unreflect(@NonNull Constructor<?> constructor) {
+    return this.accFactory.wrapConstructor(this, constructor);
   }
 
   // ------------------
