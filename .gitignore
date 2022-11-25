@@ -1,6 +1,7 @@
 # include specific folders in .idea/
 !.idea
 .idea/*
+bin/
 # copyright settings
 !/.idea/copyright
 .idea/copyright/*
