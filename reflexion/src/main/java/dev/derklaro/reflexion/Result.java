@@ -24,7 +24,7 @@
 
 package dev.derklaro.reflexion;
 
-import dev.derklaro.reflexion.internal.util.Util;
+import dev.derklaro.reflexion.internal.util.Exceptions;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -67,6 +67,8 @@ public final class Result<S> implements Supplier<S> {
   /**
    * Tries to execute the supplier and use the result of it as the value of this result. If the execution of the
    * supplier fails a result holding the thrown exception is returned instead.
+   * <p>
+   * This method instantly rethrows unrecoverable errors which prevent the current thread from resuming.
    *
    * @param supplier the which should get executed.
    * @param <T>      the type of the action result.
@@ -78,6 +80,7 @@ public final class Result<S> implements Supplier<S> {
       T result = supplier.get();
       return success(result);
     } catch (Throwable exception) {
+      Exceptions.rethrowIfFatal(exception);
       return exceptional(exception);
     }
   }
@@ -195,7 +198,7 @@ public final class Result<S> implements Supplier<S> {
    */
   public @UnknownNullability S getOrThrow() {
     if (this.exception != null) {
-      Util.throwUnchecked(this.exception);
+      Exceptions.throwUnchecked(this.exception);
     }
     return this.result;
   }

@@ -149,10 +149,12 @@ public final class Util {
    * @param <T>       the inferred type of the throwable.
    * @throws T                    the exception to rethrow.
    * @throws NullPointerException if the given throwable is null.
+   * @deprecated use {@link Exceptions#throwUnchecked(Throwable)} instead.
    */
-  @SuppressWarnings("unchecked")
+  @Deprecated
+  @ScheduledForRemoval
   public static <T extends Throwable> void throwUnchecked(@NonNull Throwable throwable) throws T {
-    throw (T) throwable;
+    Exceptions.throwUnchecked(throwable);
   }
 
   /**
