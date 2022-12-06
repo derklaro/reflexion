@@ -25,6 +25,7 @@
 package dev.derklaro.reflexion.internal.natives;
 
 import dev.derklaro.reflexion.Result;
+import dev.derklaro.reflexion.internal.util.Exceptions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -122,8 +123,9 @@ final class NativeLibLoader {
       // try to load the library
       System.load(temp.toAbsolutePath().toString());
       return true;
-    } catch (Exception exception) {
+    } catch (Throwable throwable) {
       // unable to load, ignore
+      Exceptions.rethrowIfFatal(throwable);
       return false;
     }
   }
