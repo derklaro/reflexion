@@ -124,8 +124,12 @@ final class NativeLibLoader {
       System.load(temp.toAbsolutePath().toString());
       return true;
     } catch (Throwable throwable) {
-      // unable to load, ignore
-      Exceptions.rethrowIfFatal(throwable);
+      // unable to load, ignore the error unless it's fatal
+      // we ignore all LinkageErrors as the "load" method might throw these
+      // in all kinds of cases for example if there is an issue with the temp file permissions
+      if (!(throwable instanceof LinkageError)) {
+        Exceptions.rethrowIfFatal(throwable);
+      }
       return false;
     }
   }
