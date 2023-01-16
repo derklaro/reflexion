@@ -63,7 +63,10 @@ public final class Util {
    * @return a new map with each pair of the given array in it.
    * @throws NullPointerException if the given object array is null.
    * @throws ReflexionException   if the given array doesn't contain a fitting amount of key-value pairs.
+   * @deprecated no longer needed internally.
    */
+  @Deprecated
+  @ScheduledForRemoval
   @SuppressWarnings("unchecked")
   public static <K, V> @Unmodifiable Map<K, V> newMapFromArray(@NonNull Object... entries) {
     // spare out some edge cases
