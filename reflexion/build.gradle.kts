@@ -28,7 +28,7 @@ plugins {
   id("jacoco")
   id("checkstyle")
   id("me.champeau.jmh") version "0.6.8"
-  id("com.diffplug.spotless") version "6.12.0"
+  id("com.diffplug.spotless") version "6.13.0"
 }
 
 repositories {
