@@ -28,14 +28,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.NonNull;
 
 /**
- * Internal utility class to read all java.lang.reflect members from a class and it's super classes.
+ * Internal utility class to read all java.lang.reflect members from a class and its super classes.
  *
  * @since 1.0
  */
@@ -53,7 +53,7 @@ final class ReflexionPopulator {
    * @throws NullPointerException if the given topmost class is null.
    */
   public static @NonNull Set<Field> getAllFields(@NonNull Class<?> declaringClass) {
-    return mappingHierarchyTravel(declaringClass, Class::getDeclaredFields, Class::getFields);
+    return mappingHierarchyTravel(declaringClass, Class::getDeclaredFields);
   }
 
   /**
@@ -64,7 +64,7 @@ final class ReflexionPopulator {
    * @throws NullPointerException if the given topmost class is null.
    */
   public static @NonNull Set<Method> getAllMethods(@NonNull Class<?> declaringClass) {
-    return mappingHierarchyTravel(declaringClass, Class::getDeclaredMethods, Class::getMethods);
+    return mappingHierarchyTravel(declaringClass, Class::getDeclaredMethods);
   }
 
   /**
@@ -75,47 +75,45 @@ final class ReflexionPopulator {
    * @throws NullPointerException if the given topmost class is null.
    */
   public static @NonNull Set<Constructor<?>> getAllConstructors(@NonNull Class<?> declaringClass) {
-    return mappingHierarchyTravel(declaringClass, Class::getDeclaredConstructors, Class::getConstructors);
+    return mappingHierarchyTravel(declaringClass, Class::getDeclaredConstructors);
   }
 
   /**
    * Travels down the class tree beginning from the given topmost class, extracting all public and declared members from
    * each visited class (using the given extractor functions) and collects them into a set. This method is not cached.
    *
-   * @param top             the topmost class to start the search from.
-   * @param extractor       the extractor function for declared members.
-   * @param publicExtractor the extractor function for public members.
-   * @param <T>             the type of member which gets extracted from the class tree.
+   * @param top       the topmost class to start the search from.
+   * @param extractor the extractor function for declared members.
+   * @param <T>       the type of member which gets extracted from the class tree.
    * @return all extracted members from the class tree.
    * @throws NullPointerException if the given topmost class or one of the extractor functions is null.
    */
   private static @NonNull <T extends Member> Set<T> mappingHierarchyTravel(
     @NonNull Class<?> top,
-    @NonNull Function<Class<?>, T[]> extractor,
-    @NonNull Function<Class<?>, T[]> publicExtractor
+    @NonNull Function<Class<?>, T[]> extractor
   ) {
     // all public members + init
-    Set<T> target = new LinkedHashSet<>(Arrays.asList(publicExtractor.apply(top)));
+    Set<T> classMembers = new LinkedHashSet<>();
 
     // all private members
     Class<?> current = top;
     do {
-      T[] privateValues = extractor.apply(current);
       // skip no element arrays
-      if (privateValues.length == 0) {
+      T[] members = extractor.apply(current);
+      if (members.length == 0) {
         continue;
       }
 
       // single element optimization
-      if (privateValues.length == 1) {
-        target.add(privateValues[0]);
+      if (members.length == 1) {
+        classMembers.add(members[0]);
         continue;
       }
 
-      // add all elements of the array, whatever
-      target.addAll(Arrays.asList(privateValues));
+      // add all elements of the set of known members
+      Collections.addAll(classMembers, members);
     } while ((current = current.getSuperclass()) != null);
 
-    return target;
+    return classMembers;
   }
 }
