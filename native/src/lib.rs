@@ -31,7 +31,7 @@ use jni::{JNIEnv, objects::{JObject, JClass}};
 ///
 /// * `env` - the current jni environment (pointer to the current running jvm).
 #[no_mangle]
-pub extern "system" fn Java_dev_derklaro_reflexion_internal_natives_FNativeReflect_GetImplLookup<'a>(env: JNIEnv<'a>, _ctx: JClass) -> JObject<'a> {
+pub extern "system" fn Java_dev_derklaro_reflexion_internal_natives_FNativeReflect_GetImplLookup<'a>(mut env: JNIEnv<'a>, _ctx: JClass) -> JObject<'a> {
   // try to find the Lookup class
   let target_class = env.find_class("java/lang/invoke/MethodHandles$Lookup");
   if target_class.is_err() {
@@ -64,7 +64,7 @@ pub extern "system" fn Java_dev_derklaro_reflexion_internal_natives_FNativeRefle
 ///
 /// * `env`     - the current jni environment (pointer to the current running jvm).
 /// * `message` - the message to pass to the exception.
-pub fn throw_exception(env: JNIEnv, message: &str) {
+pub fn throw_exception(mut env: JNIEnv, message: &str) {
   env.exception_clear()
     .and_then(|_| env.throw_new("dev/derklaro/reflexion/ReflexionException", message))
     .expect("unable to clear current and throw new exception");
