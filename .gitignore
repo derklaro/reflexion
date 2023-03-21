@@ -18,6 +18,9 @@ bin/
 !/.idea/inspectionProfiles/Project_Default.xml
 !/.idea/inspectionProfiles/profiles_settings.xml
 
+# Clion
+cmake-build-debug/
+
 # gradle
 .gradle/
 build/
@@ -71,9 +74,6 @@ atlassian-ide-plugin.xml
 
 # delombok
 */src/main/lombok
-
-# rust
-Cargo.lock
 
 # native build output
 *.dylib
