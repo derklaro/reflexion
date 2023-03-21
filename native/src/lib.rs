@@ -22,50 +22,62 @@
 // THE SOFTWARE.
 //
 
-use jni::{JNIEnv, objects::{JObject, JClass}};
+use jni::{
+    objects::{JClass, JObject},
+    JNIEnv,
+};
 
-/// Returns the value of the IMPL_LOOKUP field, throwing an exception if any error occurs 
+/// Returns the value of the IMPL_LOOKUP field, throwing an exception if any error occurs
 /// rather than killing the jvm.
 ///
 /// # Arguments
 ///
 /// * `env` - the current jni environment (pointer to the current running jvm).
 #[no_mangle]
-pub extern "system" fn Java_dev_derklaro_reflexion_internal_natives_FNativeReflect_GetImplLookup<'a>(mut env: JNIEnv<'a>, _ctx: JClass) -> JObject<'a> {
-  // try to find the Lookup class
-  let target_class = env.find_class("java/lang/invoke/MethodHandles$Lookup");
-  if target_class.is_err() {
-    throw_exception(env, "unable to find Lookup class");
-    return JObject::null();
-  }
+pub extern "system" fn Java_dev_derklaro_reflexion_internal_natives_FNativeReflect_GetImplLookup<
+    'a,
+>(
+    mut env: JNIEnv<'a>,
+    _ctx: JClass,
+) -> JObject<'a> {
+    // try to find the Lookup class
+    let target_class = env.find_class("java/lang/invoke/MethodHandles$Lookup");
+    if target_class.is_err() {
+        throw_exception(env, "unable to find Lookup class");
+        return JObject::null();
+    }
 
-  // try to get the IMPL_LOOKUP field value
-  let field_value = env.get_static_field(target_class.unwrap(), "IMPL_LOOKUP", "Ljava/lang/invoke/MethodHandles$Lookup;");
-  if field_value.is_err() {
-    throw_exception(env, "unable to get IMPL_LOOKUP field value");
-    return JObject::null();
-  }
+    // try to get the IMPL_LOOKUP field value
+    let field_value = env.get_static_field(
+        target_class.unwrap(),
+        "IMPL_LOOKUP",
+        "Ljava/lang/invoke/MethodHandles$Lookup;",
+    );
+    if field_value.is_err() {
+        throw_exception(env, "unable to get IMPL_LOOKUP field value");
+        return JObject::null();
+    }
 
-  // ensure that the field is an object (which is always the case by default)
-  let impl_lookup = field_value.unwrap().l();
-  if impl_lookup.is_err() {
-    throw_exception(env, "IMPL_LOOKUP field value is not an object");
-    return JObject::null();
-  }
+    // ensure that the field is an object (which is always the case by default)
+    let impl_lookup = field_value.unwrap().l();
+    if impl_lookup.is_err() {
+        throw_exception(env, "IMPL_LOOKUP field value is not an object");
+        return JObject::null();
+    }
 
-  // return the field value
-  impl_lookup.unwrap()
+    // return the field value
+    impl_lookup.unwrap()
 }
 
 /// Clears all exceptions on the given environment and throws a ReflexionException
 /// with the given message.
-/// 
+///
 /// # Arguments
 ///
 /// * `env`     - the current jni environment (pointer to the current running jvm).
 /// * `message` - the message to pass to the exception.
 pub fn throw_exception(mut env: JNIEnv, message: &str) {
-  env.exception_clear()
-    .and_then(|_| env.throw_new("dev/derklaro/reflexion/ReflexionException", message))
-    .expect("unable to clear current and throw new exception");
+    env.exception_clear()
+        .and_then(|_| env.throw_new("dev/derklaro/reflexion/ReflexionException", message))
+        .expect("unable to clear current and throw new exception");
 }
