@@ -27,7 +27,7 @@ import com.diffplug.gradle.spotless.SpotlessExtension
 plugins {
   id("jacoco")
   id("checkstyle")
-  id("me.champeau.jmh") version "0.7.0"
+  id("me.champeau.jmh") version "0.7.1"
   id("com.diffplug.spotless") version "6.15.0"
 }
 
