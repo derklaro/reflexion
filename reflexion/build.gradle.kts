@@ -27,8 +27,8 @@ import com.diffplug.gradle.spotless.SpotlessExtension
 plugins {
   id("jacoco")
   id("checkstyle")
-  id("me.champeau.jmh") version "0.7.0"
-  id("com.diffplug.spotless") version "6.15.0"
+  id("me.champeau.jmh") version "0.7.1"
+  id("com.diffplug.spotless") version "6.18.0"
 }
 
 repositories {
@@ -107,11 +107,11 @@ tasks.withType<Javadoc> {
 }
 
 extensions.configure<JacocoPluginExtension> {
-  toolVersion = "0.8.8"
+  toolVersion = "0.8.9"
 }
 
 extensions.configure<CheckstyleExtension> {
-  toolVersion = "10.7.0"
+  toolVersion = "10.9.3"
 }
 
 extensions.configure<SpotlessExtension> {
