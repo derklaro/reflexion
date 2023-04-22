@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 
+import java.util.Locale
+
 tasks.register("buildNative", Exec::class) {
   commandLine = listOf("cargo", "build", "--release", "--no-default-features")
   doLast {
@@ -35,7 +37,7 @@ tasks.register("buildNative", Exec::class) {
 
 fun getNativeLibFiles(): Pair<String, String> {
   // normalize the os name
-  val osName: String = System.getProperty("os.name").toLowerCase()
+  val osName: String = System.getProperty("os.name").lowercase(Locale.ROOT)
   val nameFormat: Pair<String, String> = if (osName.startsWith("linux") || osName == "netbsd") {
     Pair("reflexion-linux_%s", "libreflexion.so")
   } else if (osName.startsWith("windows")) {
@@ -47,7 +49,7 @@ fun getNativeLibFiles(): Pair<String, String> {
   }
 
   // normalize the cpu arch
-  val arch: String = System.getProperty("os.arch").toLowerCase()
+  val arch: String = System.getProperty("os.arch").lowercase(Locale.ROOT)
   return if (arch == "amd64" || arch == "x86_64") {
     nameFormat.copy(nameFormat.first.format("x86_64"))
   } else if (arch.startsWith("arm")) {
