@@ -51,7 +51,7 @@ dependencies {
   compileOnly("org.jetbrains", "annotations", annotationsVersion)
 
   // testing
-  val junitVersion = "5.9.3"
+  val junitVersion = "5.10.0"
   testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
   testImplementation("org.junit.jupiter", "junit-jupiter-params", junitVersion)
   testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
