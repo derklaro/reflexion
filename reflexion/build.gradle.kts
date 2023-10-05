@@ -28,7 +28,7 @@ plugins {
   id("jacoco")
   id("checkstyle")
   id("me.champeau.jmh") version "0.7.1"
-  id("com.diffplug.spotless") version "6.20.0"
+  id("com.diffplug.spotless") version "6.22.0"
 }
 
 repositories {
@@ -57,7 +57,7 @@ dependencies {
   testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 
   // jmh
-  val jmhVersion = "1.36"
+  val jmhVersion = "1.37"
   jmh("org.openjdk.jmh", "jmh-core", jmhVersion)
   jmh("org.openjdk.jmh", "jmh-generator-annprocess", jmhVersion)
 }
@@ -107,11 +107,11 @@ tasks.withType<Javadoc> {
 }
 
 extensions.configure<JacocoPluginExtension> {
-  toolVersion = "0.8.9"
+  toolVersion = "0.8.10"
 }
 
 extensions.configure<CheckstyleExtension> {
-  toolVersion = "10.9.3"
+  toolVersion = "10.12.4"
 }
 
 extensions.configure<SpotlessExtension> {
