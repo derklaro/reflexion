@@ -349,6 +349,30 @@ public final class Reflexion {
    * Tries to find and wrap a class with the given name in a reflexion instance. If no class with the given name is
    * found an illegal argument exception is raised. If you want a method to find a class which does not raise an
    * exception, consider using {@link #find(String, ClassLoader)} instead. This method will make use of the first
+   * available class loader in the context in the following order:
+   * <ol>
+   *   <li>the thread context class loader.
+   *   <li>the reflexion class loader.
+   *   <li>the system class loader.
+   * </ol>
+   * <p>
+   * This method will not initialize the class when wrapping it. If a specific class loader should be used to resolve
+   * the class, use {@link #get(String, ClassLoader)} instead.
+   *
+   * @param name the name of the class to find.
+   * @return a reflexion class object wrapping a class with the given name.
+   * @throws NullPointerException if the given class name is null.
+   * @throws ReflexionException   if no class with the given name was found.
+   * @since 1.9.0
+   */
+  public static @NonNull Reflexion get(@NonNull String name) {
+    return get(name, null);
+  }
+
+  /**
+   * Tries to find and wrap a class with the given name in a reflexion instance. If no class with the given name is
+   * found an illegal argument exception is raised. If you want a method to find a class which does not raise an
+   * exception, consider using {@link #find(String, ClassLoader)} instead. This method will make use of the first
    * available class loader in the context if no explicit loader is given in the following order:
    * <ol>
    *   <li>the thread context class loader.
@@ -366,6 +390,30 @@ public final class Reflexion {
    */
   public static @NonNull Reflexion get(@NonNull String name, @Nullable ClassLoader loader) {
     return find(name, loader).orElseThrow(() -> new ReflexionException("No class with name " + name + " found"));
+  }
+
+  /**
+   * Tries to find and wrap a class with one of the given names. If no class with the given name is found an illegal
+   * argument exception is raised. If you want a method to find a class which does not raise an exception, consider
+   * using {@link #findAny(ClassLoader, String...)} instead. The order of the given name array will be the same as the
+   * search order. This method will make use of the first available class loader in the context in the following order:
+   * <ol>
+   *   <li>the thread context class loader.
+   *   <li>the reflexion class loader.
+   *   <li>the system class loader.
+   * </ol>
+   * <p>
+   * This method will not initialize the class when wrapping it. If a specific class loader should be used to resolve
+   * the class, use {@link #getAny(ClassLoader, String...)} instead.
+   *
+   * @param names the names of the class to search for.
+   * @return a reflexion instance wrapping the first class which can be resolved from the given names.
+   * @throws NullPointerException if the given name array or an element of it is null.
+   * @throws ReflexionException   if no class with one of the given names could be found.
+   * @since 1.9.0
+   */
+  public static @NonNull Reflexion getAny(@NonNull String @NonNull ... names) {
+    return getAny(null, names);
   }
 
   /**
