@@ -87,7 +87,7 @@ jobs:
           cache: 'gradle'
 
       - name: Load native build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: reflexion/src/main/resources/reflexion-native
 
