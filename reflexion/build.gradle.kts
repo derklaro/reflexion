@@ -55,6 +55,7 @@ dependencies {
   testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
   testImplementation("org.junit.jupiter", "junit-jupiter-params", junitVersion)
   testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
+  testRuntimeOnly("org.junit.platform", "junit-platform-launcher")
 
   // jmh
   val jmhVersion = "1.37"
@@ -71,7 +72,6 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<Test> {
-  useJUnitPlatform()
   testLogging {
     events("started", "passed", "skipped", "failed")
   }
