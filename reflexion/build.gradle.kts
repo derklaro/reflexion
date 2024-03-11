@@ -28,7 +28,7 @@ plugins {
   id("jacoco")
   id("checkstyle")
   id("me.champeau.jmh") version "0.7.2"
-  id("com.diffplug.spotless") version "6.24.0"
+  id("com.diffplug.spotless") version "6.25.0"
 }
 
 repositories {
@@ -61,6 +61,13 @@ dependencies {
   val jmhVersion = "1.37"
   jmh("org.openjdk.jmh", "jmh-core", jmhVersion)
   jmh("org.openjdk.jmh", "jmh-generator-annprocess", jmhVersion)
+}
+
+// workaround for issue with checkstyle, see https://github.com/checkstyle/checkstyle/issues/14211
+configurations.named("checkstyle") {
+  resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+    select("com.google.guava:guava:0")
+  }
 }
 
 tasks.withType<JavaCompile> {
@@ -111,7 +118,7 @@ extensions.configure<JacocoPluginExtension> {
 }
 
 extensions.configure<CheckstyleExtension> {
-  toolVersion = "10.12.4"
+  toolVersion = "10.14.0"
 }
 
 extensions.configure<SpotlessExtension> {
