@@ -70,6 +70,7 @@ jobs:
           # linux
           - { os: 'ubuntu-latest', java: 11 }
           - { os: 'ubuntu-latest', java: 17 }
+          - { os: 'ubuntu-latest', java: 21 }
           # windows
           - { os: 'windows-latest', java: 17 }
           # mac
