@@ -47,7 +47,7 @@ dependencies {
   testRuntimeOnly("net.java.dev.jna", "jna", jnaVersion)
 
   // other libs
-  val annotationsVersion = "24.1.0"
+  val annotationsVersion = "26.0.1"
   compileOnly("org.jetbrains", "annotations", annotationsVersion)
 
   // testing
