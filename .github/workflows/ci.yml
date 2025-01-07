@@ -48,7 +48,7 @@ jobs:
           workspaces: native/
 
       - name: Build binary
-        uses: clechasseur/rs-cargo@v2
+        uses: clechasseur/rs-cargo@v3
         with:
           command: build
           use-cross: ${{ matrix.platform.cross }}
