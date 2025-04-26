@@ -22,17 +22,37 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.matcher;
 
-rootProject.name = "reflexion-parent"
+import java.lang.reflect.Method;
+import org.jetbrains.annotations.NotNull;
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+/**
+ * A matcher for methods.
+ *
+ * @since 1.0
+ */
+public final class MethodMatcher extends BaseMatcher<Method, MethodMatcher> {
+
+  private MethodMatcher() {
+  }
+
+  /**
+   * Constructs a new method matcher instance.
+   *
+   * @return a new method matcher.
+   */
+  public static @NotNull MethodMatcher newMatcher() {
+    return new MethodMatcher();
+  }
+
+  /**
+   * Checks if the method has the given amount of parameters.
+   *
+   * @param count the expected amount of parameters.
+   * @return the same instance as used to call the method, for chaining.
+   */
+  public @NotNull MethodMatcher parameterCount(int count) {
+    return this.and(member -> member.getParameterCount() == count);
+  }
 }

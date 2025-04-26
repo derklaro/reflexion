@@ -22,17 +22,37 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.matcher;
 
-rootProject.name = "reflexion-parent"
+import java.lang.reflect.Constructor;
+import org.jetbrains.annotations.NotNull;
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+/**
+ * A matcher for constructors.
+ *
+ * @since 1.0
+ */
+public final class ConstructorMatcher extends BaseMatcher<Constructor<?>, ConstructorMatcher> {
+
+  private ConstructorMatcher() {
+  }
+
+  /**
+   * Constructs a new constructor matcher instance.
+   *
+   * @return a new constructor matcher.
+   */
+  public static @NotNull ConstructorMatcher newMatcher() {
+    return new ConstructorMatcher();
+  }
+
+  /**
+   * Checks if the constructor has the given amount of parameters.
+   *
+   * @param count the expected amount of parameters.
+   * @return the same instance as used to call the method, for chaining.
+   */
+  public @NotNull ConstructorMatcher parameterCount(int count) {
+    return this.and(member -> member.getParameterCount() == count);
+  }
 }

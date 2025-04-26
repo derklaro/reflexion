@@ -22,17 +22,37 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion;
 
-rootProject.name = "reflexion-parent"
+import org.jetbrains.annotations.NotNull;
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+/**
+ * Represents a custom runtime exception which is exclusively thrown by methods in this library to make it easier to
+ * catch them rather than having general exception types.
+ *
+ * @since 1.0
+ */
+public final class ReflexionException extends RuntimeException {
+
+  private static final long serialVersionUID = -1675093482858418144L;
+
+  /**
+   * Constructs a new reflexion exception instance.
+   *
+   * @param message the message of the exception.
+   * @throws NullPointerException if the given message is null.
+   */
+  public ReflexionException(@NotNull String message) {
+    super(message);
+  }
+
+  /**
+   * Constructs a new reflexion exception instance.
+   *
+   * @param cause the cause why the exception was thrown.
+   * @throws NullPointerException if the given cause is null.
+   */
+  public ReflexionException(@NotNull Throwable cause) {
+    super(cause);
+  }
 }

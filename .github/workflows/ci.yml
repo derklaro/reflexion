@@ -18,15 +18,15 @@ jobs:
       matrix:
         platform:
           # mac target
-          - { os: 'macos-latest', target: 'x86_64-apple-darwin', cross: false, compiler: '', osn: 'mac', arch: 'x86_64', pref: 'lib', ext: 'dylib' }
-          - { os: 'macos-latest', target: 'aarch64-apple-darwin', cross: true, compiler: '', osn: 'mac', arch: 'aarch64', pref: 'lib', ext: 'dylib' }
+          - { os: 'macos-latest', target: 'x86_64-apple-darwin', tool: '', compiler: '', osn: 'mac', arch: 'x86_64', pref: 'lib', ext: 'dylib' }
+          - { os: 'macos-latest', target: 'aarch64-apple-darwin', tool: 'cross', compiler: '', osn: 'mac', arch: 'aarch64', pref: 'lib', ext: 'dylib' }
           # windows target
-          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', cross: false, compiler: '', osn: 'windows', arch: 'x86_64', pref: '', ext: 'dll' }
-          - { os: 'windows-latest', target: 'aarch64-pc-windows-msvc', cross: true, compiler: '', osn: 'windows', arch: 'aarch64', pref: '', ext: 'dll' }
+          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc', tool: '', compiler: '', osn: 'windows', arch: 'x86_64', pref: '', ext: 'dll' }
+          - { os: 'windows-latest', target: 'aarch64-pc-windows-msvc', tool: 'cross', compiler: '', osn: 'windows', arch: 'aarch64', pref: '', ext: 'dll' }
           # linux target
-          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', cross: false, compiler: '', osn: 'linux', arch: 'x86_64', pref: 'lib', ext: 'so' }
-          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', cross: true, compiler: 'gcc-aarch64-linux-gnu', osn: 'linux', arch: 'aarch64', pref: 'lib', ext: 'so' }
-          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', cross: true, compiler: 'gcc-arm-linux-gnueabihf', osn: 'linux', arch: 'arm', pref: 'lib', ext: 'so' }
+          - { os: 'ubuntu-latest', target: 'x86_64-unknown-linux-gnu', tool: '', compiler: '', osn: 'linux', arch: 'x86_64', pref: 'lib', ext: 'so' }
+          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu', tool: 'cross', compiler: 'gcc-aarch64-linux-gnu', osn: 'linux', arch: 'aarch64', pref: 'lib', ext: 'so' }
+          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf', tool: 'cross', compiler: 'gcc-arm-linux-gnueabihf', osn: 'linux', arch: 'arm', pref: 'lib', ext: 'so' }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,17 +48,17 @@ jobs:
           workspaces: native/
 
       - name: Build binary
-        uses: clechasseur/rs-cargo@v2
+        uses: clechasseur/rs-cargo@v3
         with:
           command: build
-          use-cross: ${{ matrix.platform.cross }}
-          args: --release --target=${{ matrix.platform.target }} --manifest-path=native/Cargo.toml --no-default-features
+          tool: ${{ matrix.platform.tool }}
+          args: --release --target=${{ matrix.platform.target }} --manifest-path=native/rs/Cargo.toml --no-default-features
 
       - name: Prepare output artifact for next step
         uses: actions/upload-artifact@v4
         with:
           name: reflexion-${{ matrix.platform.osn }}_${{ matrix.platform.arch }}
-          path: native/target/${{ matrix.platform.target }}/release/${{ matrix.platform.pref }}reflexion.${{ matrix.platform.ext }}
+          path: native/rs/target/${{ matrix.platform.target }}/release/${{ matrix.platform.pref }}reflexion.${{ matrix.platform.ext }}
 
   build-jar:
     name: Build java ${{ matrix.tc.java }}/${{ matrix.tc.os }}
@@ -90,7 +90,7 @@ jobs:
       - name: Load native build artifacts
         uses: actions/download-artifact@v4
         with:
-          path: reflexion/src/main/resources/reflexion-native
+          path: native/src/main/resources/reflexion-native
 
       - name: Build and test
         run: ./gradlew build test -x jacocoTestReport --no-daemon --stacktrace
@@ -98,5 +98,5 @@ jobs:
       - name: Upload java result
         uses: actions/upload-artifact@v4
         with:
-          name: reflexion_jar-${{ matrix.tc.os }}-${{ matrix.tc.java }}
-          path: reflexion/build/libs/reflexion-*.jar
+          name: reflexion_jars-${{ matrix.tc.os }}-${{ matrix.tc.java }}
+          path: '**/build/libs/reflexion-*.jar'

@@ -22,17 +22,30 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion;
 
-rootProject.name = "reflexion-parent"
+import java.lang.reflect.Member;
+import org.jetbrains.annotations.NotNull;
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+/**
+ * Represents the base for all accessors created by this library. Each accessor is bound to the reflexion object which
+ * created it and holds a reference to the java.lang.reflect member which it wraps.
+ *
+ * @param <T> the member which is wrapped by the accessor.
+ */
+public interface BaseAccessor<T extends Member> {
+
+  /**
+   * Get the java.lang.reflect member which is wrapped by this accessor.
+   *
+   * @return the wrapped member.
+   */
+  @NotNull T getMember();
+
+  /**
+   * Get the reflexion instance which created this accessor instance.
+   *
+   * @return the reflexion instance which created this instance.
+   */
+  @NotNull Reflexion getReflexion();
 }

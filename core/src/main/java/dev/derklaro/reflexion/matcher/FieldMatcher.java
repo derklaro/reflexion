@@ -22,17 +22,27 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.matcher;
 
-rootProject.name = "reflexion-parent"
+import java.lang.reflect.Field;
+import org.jetbrains.annotations.NotNull;
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+/**
+ * A matcher for fields.
+ *
+ * @since 1.0
+ */
+public final class FieldMatcher extends BaseMatcher<Field, FieldMatcher> {
+
+  private FieldMatcher() {
+  }
+
+  /**
+   * Constructs a new field matcher instance.
+   *
+   * @return a new field matcher instance.
+   */
+  public static @NotNull FieldMatcher newMatcher() {
+    return new FieldMatcher();
+  }
 }

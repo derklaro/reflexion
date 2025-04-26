@@ -22,17 +22,43 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.natives;
 
-rootProject.name = "reflexion-parent"
+import dev.derklaro.reflexion.internal.handles.MethodHandleAccessorFactory;
+import java.lang.invoke.MethodHandles.Lookup;
+import org.jetbrains.annotations.Nullable;
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+/**
+ * A reflexion accessor factory which uses method handles to wrap methods and fields, but looks up the IMPL_LOOKUP field
+ * using native code rather than sun.misc.Unsafe or reflections.
+ *
+ * @since 1.0
+ */
+public final class NativeAccessorFactory extends MethodHandleAccessorFactory {
+
+  private static final boolean NATIVE_LOADED = NativeLibLoader.tryLoadNative();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isAvailable() {
+    // this factory is not available without the native loaded trusted lookup
+    // to prevent confusion when the field was loaded via sun.misc.Unsafe rather
+    // than the native code
+    return NATIVE_LOADED && super.isAvailable();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected @Nullable Lookup getTrustedLookup() {
+    try {
+      // ensure that we were able to load the native library before trying anything
+      return NATIVE_LOADED ? (Lookup) FNativeReflect.GetImplLookup() : null;
+    } catch (Throwable exception) {
+      return null;
+    }
+  }
 }

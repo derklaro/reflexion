@@ -1,0 +1,22 @@
+[package]
+name = "reflexion"
+version = "1.0.0"
+edition = "2021"
+
+license = "MIT"
+repository = "https://github.com/derklaro/reflexion"
+
+authors = [ "derklaro", "0utplay" ]
+keywords = [ "jni", "reflection", "reflexion" ]
+description = "A jni lib which allows read and write access to methods and fields."
+
+[dependencies]
+jni = "0.21.1"
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+opt-level = "z"
+codegen-units = 1

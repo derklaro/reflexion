@@ -1,7 +1,7 @@
 /*
  * This file is part of reflexion, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2022-2023 Pasqual K., Aldin S. and contributors
+ * Copyright (c) 2022-2025 Pasqual K., Aldin S. and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,7 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "reflexion-parent"
-
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+dependencies {
+  api(projects.reflexionCore)
+  implementation("net.java.dev.jna", "jna", "5.17.0")
 }

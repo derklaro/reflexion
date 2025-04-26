@@ -22,17 +22,16 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.natives;
 
-rootProject.name = "reflexion-parent"
+/**
+ * The bridge to the native library bundled in this library to access the IMPL_LOOKUP field.
+ *
+ * @since 1.0
+ */
+final class FNativeReflect {
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+  // CHECKSTYLE.OFF: Must match native naming
+  public static native Object GetImplLookup();
+  // CHECKSTYLE.ON
 }

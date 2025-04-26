@@ -22,17 +22,62 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.jna.helper;
 
-rootProject.name = "reflexion-parent"
+public final class SeedClass extends SeedSuperClass {
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+  private static final String WORLD = "World";
+  private static final long LONG = 123456789L;
+
+  private final int i;
+  private final double d;
+  private final boolean b;
+  private final String str;
+
+  private SeedClass() {
+    this(234D, "");
+  }
+
+  private SeedClass(double d, String str) {
+    this(123, d, true, str);
+  }
+
+  public SeedClass(int i, double d, boolean b, String str) {
+    this(i, d, b, str, "");
+  }
+
+  public SeedClass(int i, double d, boolean b, String str, String s) {
+    this.i = i;
+    this.d = d;
+    this.b = b;
+    this.str = str;
+  }
+
+  public static String abc() {
+    return "World";
+  }
+
+  private static String abc(String a, SeedClass b) {
+    return a + " // " + b.getStr();
+  }
+
+  public int getI() {
+    return this.i;
+  }
+
+  public double getD() {
+    return this.d;
+  }
+
+  public boolean isB() {
+    return this.b;
+  }
+
+  public String getStr() {
+    return this.str;
+  }
+
+  public String appendToStr(String other) {
+    return this.str + " " + other;
+  }
 }

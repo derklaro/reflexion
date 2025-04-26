@@ -22,17 +22,54 @@
  * THE SOFTWARE.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.derklaro.reflexion.natives.helper;
 
-rootProject.name = "reflexion-parent"
+public class SeedSuperClass {
 
-sequenceOf(
-  "core",
-  "native",
-  "jna",
-).forEach {
-  val project = ":reflexion-$it"
-  include(project)
-  project(project).projectDir = file(it)
+  private String a;
+  private String b;
+  private int c;
+  private double e;
+
+  public SeedSuperClass() {
+  }
+
+  private SeedSuperClass(int fed, String def, String abc, double lol) {
+    this.a = abc;
+    this.b = def;
+    this.c = fed;
+    this.e = lol;
+  }
+
+  public String getA() {
+    return a;
+  }
+
+  private void setA(String a) {
+    this.a = a;
+  }
+
+  public String getB() {
+    return b;
+  }
+
+  private void setB(String b) {
+    this.b = b;
+  }
+
+  public int getC() {
+    return c;
+  }
+
+  private void setC(int c) {
+    this.c = c;
+  }
+
+  public double getE() {
+    return e;
+  }
+
+  private void setE(double d) {
+    this.e = d;
+  }
 }

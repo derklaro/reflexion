@@ -22,19 +22,85 @@
  * THE SOFTWARE.
  */
 
+import com.diffplug.gradle.spotless.SpotlessExtension
+
 plugins {
-  id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-2"
+  id("com.diffplug.spotless") version "7.0.3"
+  id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 allprojects {
-  version = "1.9.0-SNAPSHOT"
+  version = "2.0.0-SNAPSHOT"
   group = "dev.derklaro.reflexion"
 }
 
 subprojects {
+  apply(plugin = "jacoco")
   apply(plugin = "signing")
+  apply(plugin = "checkstyle")
   apply(plugin = "java-library")
   apply(plugin = "maven-publish")
+  apply(plugin = "com.diffplug.spotless")
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    // other libs
+    val annotationsVersion = "26.0.2"
+    "compileOnly"("org.jetbrains", "annotations", annotationsVersion)
+
+    // testing
+    val junitVersion = "5.12.2"
+    "testImplementation"("org.junit.jupiter", "junit-jupiter-api", junitVersion)
+    "testImplementation"("org.junit.jupiter", "junit-jupiter-params", junitVersion)
+    "testRuntimeOnly"("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
+    "testRuntimeOnly"("org.junit.platform", "junit-platform-launcher")
+  }
+
+  tasks.withType<JavaCompile> {
+    sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+    targetCompatibility = JavaVersion.VERSION_1_8.toString()
+
+    options.encoding = "UTF-8"
+    options.isIncremental = true
+  }
+
+  tasks.withType<Test> {
+    testLogging {
+      events("started", "passed", "skipped", "failed")
+    }
+
+    finalizedBy(tasks.getByName("jacocoTestReport"))
+  }
+
+  tasks.withType<Checkstyle> {
+    maxErrors = 0
+    maxWarnings = 0
+    configFile = rootProject.file("checkstyle.xml")
+  }
+
+  tasks.withType<Javadoc> {
+    val options = options as? StandardJavadocDocletOptions ?: return@withType
+    options.encoding = "UTF-8"
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addStringOption("-html5")
+  }
+
+  extensions.configure<JacocoPluginExtension> {
+    toolVersion = "0.8.13"
+  }
+
+  extensions.configure<CheckstyleExtension> {
+    toolVersion = "10.23.0"
+  }
+
+  extensions.configure<SpotlessExtension> {
+    java {
+      licenseHeaderFile(rootProject.file("license_header.txt"))
+    }
+  }
 
   tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
     archiveClassifier.set("javadoc")

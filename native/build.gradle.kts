@@ -22,17 +22,27 @@
  * THE SOFTWARE.
  */
 
-import java.util.Locale
+import java.util.*
+
+dependencies {
+  api(projects.reflexionCore)
+}
 
 tasks.register("buildNative", Exec::class) {
+  workingDir = project.file("rs")
   commandLine = listOf("cargo", "build", "--release", "--no-default-features")
+
   doLast {
     val fileNames = getNativeLibFiles()
     copy {
-      from("target/release/${fileNames.second}")
-      into("../reflexion/src/main/resources/reflexion-native/${fileNames.first}")
+      from("rs/target/release/${fileNames.second}")
+      into("src/main/resources/reflexion-native/${fileNames.first}")
     }
   }
+}
+
+tasks.withType<ProcessResources> {
+  dependsOn("buildNative")
 }
 
 fun getNativeLibFiles(): Pair<String, String> {
